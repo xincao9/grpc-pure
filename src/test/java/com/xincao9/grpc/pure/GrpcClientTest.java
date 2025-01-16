@@ -31,7 +31,7 @@ public class GrpcClientTest {
             try {
                 HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
                         .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
-                log.info("helloReply = {}", helloReply);
+                System.out.print(helloReply);
             } catch (Throwable e) {
                 log.error("", e);
             }
