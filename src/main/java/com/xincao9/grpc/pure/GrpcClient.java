@@ -1,7 +1,7 @@
 package com.xincao9.grpc.pure;
 
-import com.xincao9.grpc.Infra;
 import com.xincao9.grpc.ExtendGrpc;
+import com.xincao9.grpc.Infra;
 import io.grpc.*;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.InternalClientCalls;

@@ -1,7 +1,7 @@
 package com.xincao9.grpc.pure;
 
-import com.xincao9.grpc.Infra;
 import com.xincao9.grpc.ExtendGrpc;
+import com.xincao9.grpc.Infra;
 import com.xincao9.grpc.pure.discovery.ServerRegister;
 import io.grpc.BindableService;
 import io.grpc.Server;
