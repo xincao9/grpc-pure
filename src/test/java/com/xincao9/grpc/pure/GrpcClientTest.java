@@ -1,5 +1,8 @@
 package com.xincao9.grpc.pure;
 
+import com.xincao9.grpc.pure.GreeterGrpc.GreeterBlockingStub;
+import com.xincao9.grpc.pure.discovery.nacos.NacosNameResolverProvider;
+import com.xincao9.grpc.pure.discovery.nacos.NacosServerRegister;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +16,12 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class GrpcClientTest {
 
+    private static final String CLASS_NAME = GrpcClientTest.class.getSimpleName();
+
     @BeforeClass
     public static void setUp() throws Throwable {
-        GrpcServer.newBuilder().setPort(9999).addService(new GreeterImpl()).build();
+        NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder().setAppName(CLASS_NAME).build();
+        GrpcServer.newBuilder().setPort(9999).addService(new GreeterImpl()).setServerRegister(nacosServerRegister).build();
     }
 
     @AfterClass
@@ -24,9 +30,10 @@ public class GrpcClientTest {
 
     @Test
     public void testCreate() throws Throwable {
-        GrpcClient grpcClient = GrpcClient.newBuilder().build();
-        ManagedChannel managedChannel = grpcClient.create("127.0.0.1:9999");
-        GreeterGrpc.GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
+        NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
+        GrpcClient grpcClient = GrpcClient.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
+        ManagedChannel managedChannel = grpcClient.create("nacos://" + CLASS_NAME);
+        GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         for (int i = 0; i < 100; i++) {
             try {
                 HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
@@ -36,6 +43,8 @@ public class GrpcClientTest {
                 log.error("", e);
             }
         }
+        int read = System.in.read();
+        System.out.println(read);
     }
 
     public static class GreeterImpl extends GreeterGrpc.GreeterImplBase {

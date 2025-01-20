@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NacosServerRegister extends ServerRegister {
 
     private static final Integer REGISTER_TIMER_PERIOD_SECOND = 30;
-    private static final String REGISTRATION_TIME = "registrationTime";
+    private static final String REGISTRATION_TIME = "registration-time";
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final NamingService namingService;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
