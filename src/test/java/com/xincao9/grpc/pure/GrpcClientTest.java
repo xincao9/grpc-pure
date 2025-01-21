@@ -34,9 +34,15 @@ public class GrpcClientTest {
         GrpcClient grpcClient = GrpcClient.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
         ManagedChannel managedChannel = grpcClient.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
-        HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
-                .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
-        System.out.print(helloReply);
+        for (int i = 0; i < 100; i++) {
+            try {
+                HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
+                        .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
+                System.out.print(helloReply);
+            } catch (Throwable e) {
+                log.error("greeter.say", e);
+            }
+        }
     }
 
     public static class GreeterImpl extends GreeterGrpc.GreeterImplBase {

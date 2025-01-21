@@ -8,10 +8,12 @@ import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Properties;
 
 public class NacosNameResolverProvider extends NameResolverProvider {
 
+    private static final String UP = "UP";
     private static final String NACOS_SCHEME = "nacos";
     private final NamingService namingService;
 
@@ -25,7 +27,7 @@ public class NacosNameResolverProvider extends NameResolverProvider {
 
     @Override
     protected boolean isAvailable() {
-        return true;
+        return Objects.equals(namingService.getServerStatus(), UP);
     }
 
     @Override
@@ -45,6 +47,9 @@ public class NacosNameResolverProvider extends NameResolverProvider {
 
     public static class Builder {
 
+        /**
+         * nacos地址
+         */
         private String serverAddress = "localhost:8848";
         /**
          * 用户名

@@ -6,6 +6,7 @@ import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
+import io.grpc.StatusOr;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -26,27 +27,26 @@ public class NacosNameResolver extends NameResolver {
 
     @Override
     public void start(Listener2 listener) {
-        String serviceName = targetUri.getAuthority();
-        try {
-            init(listener, serviceName);
-        } catch (Throwable e) {
-            log.error("", e);
-        }
+        String serviceName = getServiceAuthority();
+        onResult(listener, serviceName);
         try {
             namingService.subscribe(serviceName, event -> {
                 changeHandler(listener, (NamingEvent) event);
             });
         } catch (Throwable e) {
-            log.error("", e);
+            log.error("namingService.subscribe", e);
         }
     }
 
-    /**
-     * 创建客户端时初始化实例列表
-     */
-    private void init(Listener2 listener, String serviceName) throws NacosException {
+    private void onResult(Listener2 listener, String serviceName) {
         List<EquivalentAddressGroup> equivalentAddressGroups = new ArrayList<>();
-        List<Instance> instances = namingService.getAllInstances(serviceName);
+        List<Instance> instances = null;
+        try {
+            instances = namingService.getAllInstances(serviceName);
+        } catch (NacosException e) {
+            log.error("namingService.getAllInstances {}", serviceName, e);
+            return;
+        }
         for (Instance instance : instances) {
             if (!instance.isEnabled() || !instance.isHealthy()) {
                 continue;
@@ -54,31 +54,19 @@ public class NacosNameResolver extends NameResolver {
             equivalentAddressGroups
                     .add(new EquivalentAddressGroup(new InetSocketAddress(instance.getIp(), instance.getPort())));
         }
-        listener.onResult(ResolutionResult.newBuilder().setAddresses(equivalentAddressGroups).build());
+        if (equivalentAddressGroups.isEmpty()) {
+            return;
+        }
+        listener.onResult(
+                ResolutionResult.newBuilder().setAddressesOrError(StatusOr.fromValue(equivalentAddressGroups)).build());
     }
 
     /**
      * 实例列表变更本地缓存
      */
     private void changeHandler(Listener2 listener, NamingEvent namingEvent) {
-        List<EquivalentAddressGroup> equivalentAddressGroups = new ArrayList<>();
-        try {
-            List<Instance> instances = namingService.getAllInstances(namingEvent.getServiceName());
-            if (instances == null || instances.isEmpty()) {
-                listener.onResult(ResolutionResult.newBuilder().setAddresses(equivalentAddressGroups).build());
-                return;
-            }
-            for (Instance instance : instances) {
-                if (!instance.isEnabled() || !instance.isHealthy()) {
-                    continue;
-                }
-                equivalentAddressGroups
-                        .add(new EquivalentAddressGroup(new InetSocketAddress(instance.getIp(), instance.getPort())));
-            }
-            listener.onResult(ResolutionResult.newBuilder().setAddresses(equivalentAddressGroups).build());
-        } catch (Throwable e) {
-            log.error("namingService.getAllInstances {}", namingEvent.getServiceName(), e);
-        }
+        String serviceName = namingEvent.getServiceName();
+        onResult(listener, serviceName);
     }
 
     @Override

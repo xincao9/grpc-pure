@@ -15,6 +15,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * nacos服务注册器
+ */
 @Slf4j
 public class NacosServerRegister extends ServerRegister {
 
