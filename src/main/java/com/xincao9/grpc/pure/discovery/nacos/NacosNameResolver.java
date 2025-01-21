@@ -4,19 +4,24 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.StatusOr;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class NacosNameResolver extends NameResolver {
 
+    private static final String REGISTRATION_TIME_PROPS = "registration-time";
+    private static final Attributes.Key<Integer> REGISTRATION_TIME_ATTRIBUTE = Attributes.Key.create(REGISTRATION_TIME_PROPS);
     private final NamingService namingService;
     private final URI targetUri;
 
@@ -51,8 +56,18 @@ public class NacosNameResolver extends NameResolver {
             if (!instance.isEnabled() || !instance.isHealthy()) {
                 continue;
             }
+            Attributes attributes = Attributes.EMPTY;
+            Map<String, String> metadata = instance.getMetadata();
+            if (metadata != null && !metadata.isEmpty()) {
+                Attributes.Builder builder = Attributes.newBuilder();
+                String value = metadata.get(REGISTRATION_TIME_PROPS);
+                if (StringUtils.isNotBlank(value)) {
+                    builder.set(REGISTRATION_TIME_ATTRIBUTE, Integer.parseInt(value));
+                }
+                attributes = builder.build();
+            }
             equivalentAddressGroups
-                    .add(new EquivalentAddressGroup(new InetSocketAddress(instance.getIp(), instance.getPort())));
+                    .add(new EquivalentAddressGroup(new InetSocketAddress(instance.getIp(), instance.getPort()), attributes));
         }
         if (equivalentAddressGroups.isEmpty()) {
             return;

@@ -14,9 +14,9 @@ import org.junit.Test;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class GrpcClientTest {
+public class GrpcChannelsTest {
 
-    private static final String APP_NAME = GrpcClientTest.class.getSimpleName();
+    private static final String APP_NAME = GrpcChannelsTest.class.getSimpleName();
 
     @BeforeClass
     public static void setUp() throws Throwable {
@@ -31,8 +31,8 @@ public class GrpcClientTest {
     @Test
     public void testCreate() throws Throwable {
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
-        GrpcClient grpcClient = GrpcClient.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
-        ManagedChannel managedChannel = grpcClient.create("nacos://" + APP_NAME);
+        GrpcChannels grpcChannels = GrpcChannels.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
+        ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         for (int i = 0; i < 100; i++) {
             try {

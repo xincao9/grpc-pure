@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NacosServerRegister extends ServerRegister {
 
     private static final Integer REGISTER_TIMER_PERIOD_SECOND = 30;
-    private static final String REGISTRATION_TIME = "registration-time";
+    private static final String REGISTRATION_TIME_PROPS = "registration-time";
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final NamingService namingService;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -63,8 +63,8 @@ public class NacosServerRegister extends ServerRegister {
                     registerInstance(appName);
                     return;
                 }
-                for (Instance i : instances) {
-                    if (Objects.equals(i.getIp(), IpUtils.getIP()) && Objects.equals(i.getPort(), port)) {
+                for (Instance instance : instances) {
+                    if (Objects.equals(instance.getIp(), IpUtils.getIP()) && Objects.equals(instance.getPort(), port)) {
                         return;
                     }
                 }
@@ -108,7 +108,7 @@ public class NacosServerRegister extends ServerRegister {
         instance.setEphemeral(true);
         instance.setWeight(1000);
         Map<String, String> metadata = new HashMap<>(1);
-        metadata.put(REGISTRATION_TIME, String.valueOf(System.currentTimeMillis()));
+        metadata.put(REGISTRATION_TIME_PROPS, String.valueOf(System.currentTimeMillis()));
         instance.setMetadata(metadata);
         return instance;
     }

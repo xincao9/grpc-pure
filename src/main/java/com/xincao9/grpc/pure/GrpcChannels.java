@@ -11,14 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * 客户端
  */
 @Slf4j
-public class GrpcClient {
+public class GrpcChannels {
 
     private final Map<String, ManagedChannel> managedChannelMap;
     private final NameResolverProvider nameResolverProvider;
     private final LoadBalancerProvider loadBalancerProvider;
 
-    private GrpcClient(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider,
-            Boolean enablePing) {
+    private GrpcChannels(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider,
+                         Boolean enablePing) {
         this.nameResolverProvider = nameResolverProvider;
         this.loadBalancerProvider = loadBalancerProvider;
         this.managedChannelMap = new ConcurrentHashMap<>();
@@ -75,8 +75,8 @@ public class GrpcClient {
             return this;
         }
 
-        public GrpcClient build() throws Throwable {
-            return new GrpcClient(nameResolverProvider, loadBalancerProvider, enablePing);
+        public GrpcChannels build() throws Throwable {
+            return new GrpcChannels(nameResolverProvider, loadBalancerProvider, enablePing);
         }
     }
 }
