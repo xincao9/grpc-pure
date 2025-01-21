@@ -21,7 +21,8 @@ import java.util.Map;
 public class NacosNameResolver extends NameResolver {
 
     private static final String REGISTRATION_TIME_PROPS = "registration-time";
-    private static final Attributes.Key<Integer> REGISTRATION_TIME_ATTRIBUTE = Attributes.Key.create(REGISTRATION_TIME_PROPS);
+    private static final Attributes.Key<Integer> REGISTRATION_TIME_ATTRIBUTE = Attributes.Key
+            .create(REGISTRATION_TIME_PROPS);
     private final NamingService namingService;
     private final URI targetUri;
 
@@ -66,8 +67,8 @@ public class NacosNameResolver extends NameResolver {
                 }
                 attributes = builder.build();
             }
-            equivalentAddressGroups
-                    .add(new EquivalentAddressGroup(new InetSocketAddress(instance.getIp(), instance.getPort()), attributes));
+            equivalentAddressGroups.add(new EquivalentAddressGroup(
+                    new InetSocketAddress(instance.getIp(), instance.getPort()), attributes));
         }
         if (equivalentAddressGroups.isEmpty()) {
             return;

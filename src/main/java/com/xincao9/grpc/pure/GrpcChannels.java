@@ -18,7 +18,7 @@ public class GrpcChannels {
     private final LoadBalancerProvider loadBalancerProvider;
 
     private GrpcChannels(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider,
-                         Boolean enablePing) {
+            Boolean enablePing) {
         this.nameResolverProvider = nameResolverProvider;
         this.loadBalancerProvider = loadBalancerProvider;
         this.managedChannelMap = new ConcurrentHashMap<>();
