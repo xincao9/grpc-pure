@@ -74,13 +74,13 @@ public class GrpcClient {
         if (managedChannelMap.containsKey(target)) {
             return managedChannelMap.get(target);
         }
-        ManagedChannelBuilder managedChannelBuilder = createManagedChannelBuilder(target);
+        ManagedChannelBuilder<?> managedChannelBuilder = createManagedChannelBuilder(target);
         ManagedChannel managedChannel = managedChannelBuilder.build();
         managedChannelMap.put(target, managedChannel);
         return managedChannel;
     }
 
-    public ManagedChannelBuilder createManagedChannelBuilder(String target) {
+    public ManagedChannelBuilder<?> createManagedChannelBuilder(String target) {
         if (nameResolverProvider != null) {
             NameResolverRegistry.getDefaultRegistry().register(nameResolverProvider);
         }
