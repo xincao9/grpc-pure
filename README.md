@@ -89,7 +89,9 @@ public class Client {
     public static void main(String... args) {
         // 注册中心，服务后端实例发现
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
-        GrpcChannels grpcChannels = GrpcChannels.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
+        GrpcChannels grpcChannels = GrpcChannels.newBuilder()
+                .setNameResolverProvider(nacosNameResolverProvider)
+                .build();
         // 创建channel
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         // 使用channel调用后端服务
