@@ -44,10 +44,21 @@ public class Server {
     private static final String APP_NAME = "greeter";
 
     public static void main(String... args) {
-        NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder().setAppName(APP_NAME).build();
-        GrpcServer.newBuilder().setPort(9999).addService(new GreeterImpl()).setServerRegister(nacosServerRegister).build();
+        // 注册中心，服务注册
+        NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
+                .setAppName(APP_NAME) // 应用名
+                .build();
+        // 启动后端服务
+        GrpcServer.newBuilder()
+                .setPort(9999)
+                .addService(new GreeterImpl()) // 添加服务实现类
+                .setServerRegister(nacosServerRegister)
+                .build();
     }
 
+    /**
+     * 实现Greeter服务
+     */
     public static class GreeterImpl extends GreeterGrpc.GreeterImplBase {
 
         @Override
@@ -76,11 +87,15 @@ public class Client {
     private static final String APP_NAME = "greeter";
 
     public static void main(String... args) {
+        // 注册中心，服务后端实例发现
+        NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
         GrpcChannels grpcChannels = GrpcChannels.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
+        // 创建channel
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
+        // 使用channel调用后端服务
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
-                .sayHello(HelloRequest.newBuilder().setName("hello grpc-pure").build());
+                .sayHello(HelloRequest.newBuilder().setName("grpc-pure").build());
         System.out.print(helloReply);
     }
 }
