@@ -49,7 +49,6 @@ public class NacosServerRegister extends ServerRegister {
         }
     }
 
-
     public Boolean register() {
         if (!registerInstance(appName)) {
             return false;

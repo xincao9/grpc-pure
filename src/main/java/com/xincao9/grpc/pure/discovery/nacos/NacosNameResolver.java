@@ -51,8 +51,8 @@ public class NacosNameResolver extends NameResolver {
             if (!instance.isEnabled() || !instance.isHealthy()) {
                 continue;
             }
-            equivalentAddressGroups.add(new EquivalentAddressGroup(
-                    new InetSocketAddress(instance.getIp(), instance.getPort())));
+            equivalentAddressGroups
+                    .add(new EquivalentAddressGroup(new InetSocketAddress(instance.getIp(), instance.getPort())));
         }
         listener.onResult(ResolutionResult.newBuilder().setAddresses(equivalentAddressGroups).build());
     }
@@ -72,8 +72,8 @@ public class NacosNameResolver extends NameResolver {
                 if (!instance.isEnabled() || !instance.isHealthy()) {
                     continue;
                 }
-                equivalentAddressGroups.add(new EquivalentAddressGroup(
-                        new InetSocketAddress(instance.getIp(), instance.getPort())));
+                equivalentAddressGroups
+                        .add(new EquivalentAddressGroup(new InetSocketAddress(instance.getIp(), instance.getPort())));
             }
             listener.onResult(ResolutionResult.newBuilder().setAddresses(equivalentAddressGroups).build());
         } catch (Throwable e) {

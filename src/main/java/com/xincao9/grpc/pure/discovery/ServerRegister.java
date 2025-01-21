@@ -1,6 +1,5 @@
 package com.xincao9.grpc.pure.discovery;
 
-
 public abstract class ServerRegister {
 
     protected String appName = "Default";

@@ -31,7 +31,8 @@ public class GrpcClient {
     private final LoadBalancerProvider loadBalancerProvider;
     private final Boolean enablePing;
 
-    private GrpcClient(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider, Boolean enablePing) {
+    private GrpcClient(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider,
+            Boolean enablePing) {
         this.nameResolverProvider = nameResolverProvider;
         this.loadBalancerProvider = loadBalancerProvider;
         this.enablePing = enablePing;

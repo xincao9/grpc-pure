@@ -16,11 +16,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class GrpcClientTest {
 
-    private static final String CLASS_NAME = GrpcClientTest.class.getSimpleName();
+    private static final String APP_NAME = GrpcClientTest.class.getSimpleName();
 
     @BeforeClass
     public static void setUp() throws Throwable {
-        NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder().setAppName(CLASS_NAME).build();
+        NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder().setAppName(APP_NAME).build();
         GrpcServer.newBuilder().setPort(9999).addService(new GreeterImpl()).setServerRegister(nacosServerRegister).build();
     }
 
@@ -32,19 +32,11 @@ public class GrpcClientTest {
     public void testCreate() throws Throwable {
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
         GrpcClient grpcClient = GrpcClient.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
-        ManagedChannel managedChannel = grpcClient.create("nacos://" + CLASS_NAME);
+        ManagedChannel managedChannel = grpcClient.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
-        for (int i = 0; i < 100; i++) {
-            try {
-                HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
-                        .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
-                System.out.print(helloReply);
-            } catch (Throwable e) {
-                log.error("", e);
-            }
-        }
-        int read = System.in.read();
-        System.out.println(read);
+        HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
+                .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
+        System.out.print(helloReply);
     }
 
     public static class GreeterImpl extends GreeterGrpc.GreeterImplBase {
