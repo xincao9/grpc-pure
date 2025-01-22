@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xincao9.infra</groupId>
     <artifactId>grpc-pure</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>grpc-pure</name>
     <description>对纯原生的grpc进行增强</description>
     <properties>
