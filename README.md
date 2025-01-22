@@ -89,7 +89,7 @@ public class Client {
     private static final String APP_NAME = "greeter";
 
     public static void main(String... args) {
-        // 注册中心，服务后端实例发现
+        // 注册中心，服务发现；对nacos:{服务名}的支持
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
