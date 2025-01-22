@@ -1,4 +1,4 @@
-package com.github.xincao9.grpc.pure.util;
+package fun.golinks.grpc.pure.util;
 
 import lombok.extern.slf4j.Slf4j;
 

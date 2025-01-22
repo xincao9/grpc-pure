@@ -1,4 +1,4 @@
-package com.github.xincao9.grpc.pure.discovery.nacos;
+package fun.golinks.grpc.pure.discovery.nacos;
 
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;

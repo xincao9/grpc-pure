@@ -38,8 +38,8 @@ message HelloReply {
 ### 启动服务端
 
 ```java
-import com.github.xincao9.grpc.pure.discovery.nacos.NacosServerRegister;
-import com.github.xincao9.grpc.pure.GrpcServer;
+import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
+import fun.golinks.grpc.pure.GrpcServer;
 
 public class Server {
 
@@ -77,12 +77,12 @@ public class Server {
 ### 启动客户端
 
 ```java
-import com.github.xincao9.grpc.pure.GreeterGrpc.GreeterBlockingStub;
-import com.github.xincao9.grpc.pure.discovery.nacos.NacosNameResolverProvider;
+import fun.golinks.xincao9.grpc.pure.GreeterGrpc.GreeterBlockingStub;
+import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import io.grpc.ManagedChannel;
-import com.github.xincao9.grpc.pure.GrpcChannels;
-import com.github.xincao9.grpc.pure.HelloReply;
-import com.github.xincao9.grpc.pure.GreeterGrpc;
+import fun.golinks.grpc.pure.GrpcChannels;
+import fun.golinks.xincao9.grpc.pure.HelloReply;
+import fun.golinks.xincao9.grpc.pure.GreeterGrpc;
 
 public class Client {
 

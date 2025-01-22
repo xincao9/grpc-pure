@@ -2,7 +2,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.xincao9.infra</groupId>
+    <groupId>fun.golinks</groupId>
     <artifactId>grpc-pure</artifactId>
     <version>1.0.0</version>
     <name>grpc-pure</name>
@@ -12,6 +12,40 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>8</java.version>
     </properties>
+    <url>https://github.com/xincao9/grpc-pure</url>
+    <developers>
+        <developer>
+            <email>xincao9@gmail.com</email>
+            <name>xin.cao</name>
+            <roles>
+                <role>owner</role>
+            </roles>
+            <url>https://github.com/xincao9</url>
+            <organization>xincao9</organization>
+            <organizationUrl>https://github.com/xincao9/</organizationUrl>
+        </developer>
+    </developers>
+    <organization>
+        <name>Personal</name>
+        <url>https://github.com/xincao9</url>
+    </organization>
+    <issueManagement>
+        <system>Github Issues</system>
+        <url>https://github.com/xincao9/grpc-pure/issues</url>
+    </issueManagement>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <tag>master</tag>
+        <url>git@github.com:xincao9/grpc-pure.git</url>
+        <connection>scm:git:git@github.com:xincao9/grpc-pure.git</connection>
+        <developerConnection>scm:git:git@github.com:xincao9/grpc-pure.git</developerConnection>
+    </scm>
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -162,6 +196,21 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.7</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.11.2</version>
             </plugin>
         </plugins>
     </build>

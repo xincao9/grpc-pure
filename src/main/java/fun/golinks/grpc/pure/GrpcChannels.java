@@ -1,6 +1,6 @@
-package com.github.xincao9.grpc.pure;
+package fun.golinks.grpc.pure;
 
-import com.github.xincao9.grpc.pure.core.PingRunner;
+import fun.golinks.grpc.pure.core.PingRunner;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 

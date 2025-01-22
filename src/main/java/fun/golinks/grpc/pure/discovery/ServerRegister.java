@@ -1,4 +1,4 @@
-package com.github.xincao9.grpc.pure.discovery;
+package fun.golinks.grpc.pure.discovery;
 
 /**
  * 服务注册器

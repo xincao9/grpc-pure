@@ -1,8 +1,6 @@
-package com.github.xincao9.grpc.pure;
+package fun.golinks.grpc.pure;
 
-import com.github.xincao9.grpc.ExtendGrpc;
-import com.github.xincao9.grpc.Infra;
-import com.github.xincao9.grpc.pure.discovery.ServerRegister;
+import fun.golinks.grpc.pure.discovery.ServerRegister;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
