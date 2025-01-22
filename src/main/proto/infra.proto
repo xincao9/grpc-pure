@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package infra;
 
-option java_package = "com.xincao9.grpc";
+option java_package = "com.github.xincao9.grpc";
 
 // 扩展
 service Extend {

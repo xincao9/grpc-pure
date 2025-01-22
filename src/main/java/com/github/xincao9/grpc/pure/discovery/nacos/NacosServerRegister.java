@@ -1,12 +1,12 @@
-package com.xincao9.grpc.pure.discovery.nacos;
+package com.github.xincao9.grpc.pure.discovery.nacos;
 
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.xincao9.grpc.pure.discovery.ServerRegister;
-import com.xincao9.grpc.pure.util.IpUtils;
+import com.github.xincao9.grpc.pure.discovery.ServerRegister;
+import com.github.xincao9.grpc.pure.util.IpUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;

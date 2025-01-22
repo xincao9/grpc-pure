@@ -1,4 +1,4 @@
-package com.xincao9.grpc.pure.discovery;
+package com.github.xincao9.grpc.pure.discovery;
 
 /**
  * 服务注册器

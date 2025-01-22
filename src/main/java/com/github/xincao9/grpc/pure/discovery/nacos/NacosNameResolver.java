@@ -1,4 +1,4 @@
-package com.xincao9.grpc.pure.discovery.nacos;
+package com.github.xincao9.grpc.pure.discovery.nacos;
 
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class NacosNameResolver extends NameResolver {
 
     private static final String REGISTRATION_TIME_PROPS = "registration-time";
-    private static final Attributes.Key<Integer> REGISTRATION_TIME_ATTRIBUTE = Attributes.Key
+    private static final Attributes.Key<Long> REGISTRATION_TIME_ATTRIBUTE = Attributes.Key
             .create(REGISTRATION_TIME_PROPS);
     private final NamingService namingService;
     private final URI targetUri;
@@ -63,7 +63,7 @@ public class NacosNameResolver extends NameResolver {
                 Attributes.Builder builder = Attributes.newBuilder();
                 String value = metadata.get(REGISTRATION_TIME_PROPS);
                 if (StringUtils.isNotBlank(value)) {
-                    builder.set(REGISTRATION_TIME_ATTRIBUTE, Integer.parseInt(value));
+                    builder.set(REGISTRATION_TIME_ATTRIBUTE, Long.parseLong(value));
                 }
                 attributes = builder.build();
             }

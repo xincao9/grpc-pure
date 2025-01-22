@@ -1,8 +1,8 @@
-package com.xincao9.grpc.pure;
+package com.github.xincao9.grpc.pure;
 
-import com.xincao9.grpc.pure.GreeterGrpc.GreeterBlockingStub;
-import com.xincao9.grpc.pure.discovery.nacos.NacosNameResolverProvider;
-import com.xincao9.grpc.pure.discovery.nacos.NacosServerRegister;
+import com.github.xincao9.grpc.pure.GreeterGrpc.GreeterBlockingStub;
+import com.github.xincao9.grpc.pure.discovery.nacos.NacosNameResolverProvider;
+import com.github.xincao9.grpc.pure.discovery.nacos.NacosServerRegister;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;

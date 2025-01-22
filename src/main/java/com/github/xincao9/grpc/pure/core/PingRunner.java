@@ -1,7 +1,7 @@
-package com.xincao9.grpc.pure.core;
+package com.github.xincao9.grpc.pure.core;
 
-import com.xincao9.grpc.ExtendGrpc;
-import com.xincao9.grpc.Infra;
+import com.github.xincao9.grpc.ExtendGrpc;
+import com.github.xincao9.grpc.Infra;
 import io.grpc.CallOptions;
 import io.grpc.ClientCall;
 import io.grpc.ManagedChannel;
