@@ -10,7 +10,54 @@ Grpc作为优秀的开源框架受到大厂的青睐，但是对于小企业来�
 
 ## 代码示例
 
-### 定义protobuf文件
+演示代码依赖nacos-server，请自行安装 [nacos-server](https://nacos.io/docs/v2.3/quickstart/quick-start/?spm=5238cd80.6a33be36.0.0.378b1e5dQqZvG2)
+
+### 添加依赖
+
+```xml
+
+<dependency>
+    <groupId>fun.golinks</groupId>
+    <artifactId>grpc-pure</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+#### 编译protobuf文件插件 【可选】
+
+```xml
+<build>
+<extensions>
+    <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.6.2</version>
+    </extension>
+</extensions>
+<plugins>
+    <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.1</version>
+        <configuration>
+            <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${os.detected.classifier}</protocArtifact>
+            <pluginId>grpc-java</pluginId>
+            <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.42.1:exe:${os.detected.classifier}</pluginArtifact>
+        </configuration>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>compile</goal>
+                    <goal>compile-custom</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+</plugins>
+</build>
+```
+
+### 定义protobuf文件（greeter.proto）; 一般位于 src/main/proto目录下
+
 ```protobuf
 syntax = "proto3";
 
