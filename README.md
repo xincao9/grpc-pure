@@ -61,7 +61,7 @@ Grpc作为优秀的开源框架受到大厂的青睐，但是对于小企业来�
 ```protobuf
 syntax = "proto3";
 
-package com.github.xincao9.grpc.pure;
+package fun.golinks.grpc.pure;
 
 option java_multiple_files = true;
 
@@ -124,12 +124,12 @@ public class Server {
 ### 启动客户端
 
 ```java
-import fun.golinks.xincao9.grpc.pure.GreeterGrpc.GreeterBlockingStub;
+import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import io.grpc.ManagedChannel;
 import fun.golinks.grpc.pure.GrpcChannels;
-import fun.golinks.xincao9.grpc.pure.HelloReply;
-import fun.golinks.xincao9.grpc.pure.GreeterGrpc;
+import fun.golinks.grpc.pure.HelloReply;
+import fun.golinks.grpc.pure.GreeterGrpc;
 
 public class Client {
 
