@@ -4,6 +4,7 @@ import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
 import fun.golinks.grpc.pure.config.LogbackConfig;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
+import fun.golinks.grpc.pure.interceptor.LoggerClientInterceptor;
 import fun.golinks.grpc.pure.util.GrpcExecutors;
 import fun.golinks.grpc.pure.util.GrpcThreadPoolExecutor;
 import io.grpc.ManagedChannel;
@@ -33,8 +34,14 @@ public class GrpcChannelsTest {
     @BeforeClass
     public static void setUp() throws Throwable {
         LogbackConfig.init();
-        NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder().setAppName(APP_NAME).build();
-        GrpcServer.newBuilder().setPort(9999).addService(new GreeterImpl()).setServerRegister(nacosServerRegister).build();
+        NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
+                .setAppName(APP_NAME)
+                .build();
+        GrpcServer.newBuilder()
+                .setPort(9999)
+                .addService(new GreeterImpl())
+                .setServerRegister(nacosServerRegister)
+                .build();
     }
 
     @AfterClass
@@ -44,12 +51,16 @@ public class GrpcChannelsTest {
     @Test
     public void testCreate() throws Throwable {
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
-        GrpcChannels grpcChannels = GrpcChannels.newBuilder().setNameResolverProvider(nacosNameResolverProvider).build();
+        GrpcChannels grpcChannels = GrpcChannels.newBuilder()
+                .setNameResolverProvider(nacosNameResolverProvider)
+                .build();
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         for (int i = 0; i < 100; i++) {
             try {
-                HelloReply helloReply = greeterBlockingStub.withExecutor(grpcThreadPoolExecutor).withDeadlineAfter(100, TimeUnit.MILLISECONDS)
+                HelloReply helloReply = greeterBlockingStub.withExecutor(grpcThreadPoolExecutor)
+                        .withInterceptors(new LoggerClientInterceptor())
+                        .withDeadlineAfter(100, TimeUnit.MILLISECONDS)
                         .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
                 log.info("helloReply: {}", helloReply);
             } catch (Throwable e) {
