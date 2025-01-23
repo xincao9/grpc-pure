@@ -14,7 +14,7 @@ public class LoggerServerInterceptor implements ServerInterceptor {
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
             ServerCallHandler<ReqT, RespT> next) {
-        String traceId = headers.get(SystemConsts.TRACE_ID);
+        String traceId = headers.get(SystemConsts.TRACE_ID_KEY);
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(

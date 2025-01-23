@@ -8,5 +8,7 @@ public class SystemConsts {
 
     public static final StatusRuntimeException STATUS_RUNTIME_EXCEPTION = new StatusRuntimeException(Status.CANCELLED);
 
-    public static final Metadata.Key<String> TRACE_ID = Metadata.Key.of("trace-id", Metadata.ASCII_STRING_MARSHALLER);
+    public static final String TRACE_ID = "trace-id";
+
+    public static final Metadata.Key<String> TRACE_ID_KEY = Metadata.Key.of(TRACE_ID, Metadata.ASCII_STRING_MARSHALLER);
 }
