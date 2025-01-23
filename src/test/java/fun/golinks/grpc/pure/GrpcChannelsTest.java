@@ -3,6 +3,8 @@ package fun.golinks.grpc.pure;
 import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
+import fun.golinks.grpc.pure.util.GrpcExecutors;
+import fun.golinks.grpc.pure.util.GrpcThreadPoolExecutor;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +13,21 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class GrpcChannelsTest {
 
-    private static final String APP_NAME = GrpcChannelsTest.class.getSimpleName();
+    private static final String APP_NAME = "greeter";
+    private final GrpcThreadPoolExecutor grpcThreadPoolExecutor = GrpcExecutors.newGrpcThreadPoolExecutor("grpc-invoke",
+            1,
+            2,
+            1L,
+            TimeUnit.MINUTES,
+            new LinkedBlockingDeque<>(100),
+            new ThreadPoolExecutor.CallerRunsPolicy());
 
     @BeforeClass
     public static void setUp() throws Throwable {
@@ -36,9 +47,9 @@ public class GrpcChannelsTest {
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         for (int i = 0; i < 100; i++) {
             try {
-                HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
+                HelloReply helloReply = greeterBlockingStub.withExecutor(grpcThreadPoolExecutor).withDeadlineAfter(100, TimeUnit.MILLISECONDS)
                         .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
-                System.out.print(helloReply);
+                log.info("helloReply: {}", helloReply);
             } catch (Throwable e) {
                 log.error("greeter.say", e);
             }
