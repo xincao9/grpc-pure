@@ -5,18 +5,20 @@ import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class LoggerClientInterceptor implements ClientInterceptor {
 
-    private static final String LOGGER_MESSAGE_FORMAT = "grpc method: {} - invocation performance cost: {} milliseconds";
+    private static final String LOGGER_MESSAGE_FORMAT = "[{}]:[{}] - invocation performance cost: {} milliseconds";
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
             CallOptions callOptions, Channel next) {
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
+        String traceId = UUID.randomUUID().toString();
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
@@ -24,6 +26,7 @@ public class LoggerClientInterceptor implements ClientInterceptor {
                         new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
                             @Override
                             public void onHeaders(Metadata headers) {
+                                headers.put(SystemConsts.TRACE_ID, traceId);
                                 super.onHeaders(headers);
                             }
 
@@ -32,9 +35,9 @@ public class LoggerClientInterceptor implements ClientInterceptor {
                                 long costTime = System.currentTimeMillis() - startTime;
                                 if (run.compareAndSet(false, true)) {
                                     if (status.isOk()) {
-                                        log.info(LOGGER_MESSAGE_FORMAT, method.getFullMethodName(), costTime);
+                                        log.info(LOGGER_MESSAGE_FORMAT, traceId, method.getFullMethodName(), costTime);
                                     } else {
-                                        log.error(LOGGER_MESSAGE_FORMAT, method.getFullMethodName(), costTime,
+                                        log.error(LOGGER_MESSAGE_FORMAT, traceId, method.getFullMethodName(), costTime,
                                                 status.asRuntimeException());
                                     }
                                 }
@@ -47,7 +50,7 @@ public class LoggerClientInterceptor implements ClientInterceptor {
             public void cancel(@Nullable String message, @Nullable Throwable cause) {
                 if (run.compareAndSet(false, true)) {
                     long costTime = System.currentTimeMillis() - startTime;
-                    log.error(LOGGER_MESSAGE_FORMAT, method.getFullMethodName(), costTime,
+                    log.error(LOGGER_MESSAGE_FORMAT, traceId, method.getFullMethodName(), costTime,
                             SystemConsts.STATUS_RUNTIME_EXCEPTION);
                 }
                 super.cancel(message, cause);

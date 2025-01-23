@@ -9,11 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class LoggerServerInterceptor implements ServerInterceptor {
 
-    private static final String LOGGER_MESSAGE_FORMAT = "grpc method: {} - performance cost: {} milliseconds";
+    private static final String LOGGER_MESSAGE_FORMAT = "[{}]:[{}] - performance cost: {} milliseconds";
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
             ServerCallHandler<ReqT, RespT> next) {
+        String traceId = headers.get(SystemConsts.TRACE_ID);
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(
@@ -23,11 +24,12 @@ public class LoggerServerInterceptor implements ServerInterceptor {
                         if (run.compareAndSet(false, true)) {
                             long costTime = System.currentTimeMillis() - startTime;
                             if (status.isOk()) {
-                                log.info(LOGGER_MESSAGE_FORMAT, call.getMethodDescriptor().getFullMethodName(),
+                                log.info(LOGGER_MESSAGE_FORMAT, traceId, call.getMethodDescriptor().getFullMethodName(),
                                         costTime);
                             } else {
-                                log.error(LOGGER_MESSAGE_FORMAT, call.getMethodDescriptor().getFullMethodName(),
-                                        costTime, status.asRuntimeException());
+                                log.error(LOGGER_MESSAGE_FORMAT, traceId,
+                                        call.getMethodDescriptor().getFullMethodName(), costTime,
+                                        status.asRuntimeException());
                             }
                         }
                         super.close(status, trailers);
@@ -38,7 +40,7 @@ public class LoggerServerInterceptor implements ServerInterceptor {
             public void onCancel() {
                 if (run.compareAndSet(false, true)) {
                     long costTime = System.currentTimeMillis() - startTime;
-                    log.error(LOGGER_MESSAGE_FORMAT, call.getMethodDescriptor().getFullMethodName(), costTime,
+                    log.error(LOGGER_MESSAGE_FORMAT, traceId, call.getMethodDescriptor().getFullMethodName(), costTime,
                             SystemConsts.STATUS_RUNTIME_EXCEPTION);
                 }
                 super.onCancel();
