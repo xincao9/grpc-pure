@@ -22,11 +22,11 @@ public class LoggerClientInterceptor implements ClientInterceptor {
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
+                headers.put(SystemConsts.TRACE_ID, traceId);
                 super.start(
                         new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
                             @Override
                             public void onHeaders(Metadata headers) {
-                                headers.put(SystemConsts.TRACE_ID, traceId);
                                 super.onHeaders(headers);
                             }
 
