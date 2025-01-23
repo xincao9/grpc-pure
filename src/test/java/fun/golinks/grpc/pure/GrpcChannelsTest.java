@@ -1,6 +1,7 @@
 package fun.golinks.grpc.pure;
 
 import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
+import fun.golinks.grpc.pure.config.LogbackConfig;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
 import fun.golinks.grpc.pure.util.GrpcExecutors;
@@ -31,6 +32,7 @@ public class GrpcChannelsTest {
 
     @BeforeClass
     public static void setUp() throws Throwable {
+        LogbackConfig.init();
         NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder().setAppName(APP_NAME).build();
         GrpcServer.newBuilder().setPort(9999).addService(new GreeterImpl()).setServerRegister(nacosServerRegister).build();
     }

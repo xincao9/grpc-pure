@@ -22,7 +22,7 @@ public class LoggerServerInterceptor implements ServerInterceptor {
                         if (run.compareAndSet(false, true)) {
                             long costTime = System.currentTimeMillis() - startTime;
                             if (status.isOk()) {
-                                log.debug("grpc method: {} perform cost time {} ms",
+                                log.info("grpc method: {} perform cost time {} ms",
                                         call.getMethodDescriptor().getFullMethodName(), costTime);
                             } else {
                                 log.error("grpc method: {} perform cost time {} ms",
