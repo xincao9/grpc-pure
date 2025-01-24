@@ -15,6 +15,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -62,13 +63,13 @@ public class GrpcChannelsTest {
                 .build();
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
+                .setExecutor(grpcThreadPoolExecutor)
+                .setClientInterceptors(Collections.singleton(new LoggerClientInterceptor()))
                 .build();
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         for (int i = 0; i < 100; i++) {
-                HelloReply helloReply = greeterBlockingStub.withExecutor(grpcThreadPoolExecutor)
-                        .withInterceptors(new LoggerClientInterceptor())
-                        .withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
+                HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
                         .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
                 log.info("helloReply: {}", helloReply);
         }
