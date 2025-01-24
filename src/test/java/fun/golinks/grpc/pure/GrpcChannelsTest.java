@@ -66,15 +66,11 @@ public class GrpcChannelsTest {
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         for (int i = 0; i < 100; i++) {
-            try {
                 HelloReply helloReply = greeterBlockingStub.withExecutor(grpcThreadPoolExecutor)
                         .withInterceptors(new LoggerClientInterceptor())
-                        .withDeadlineAfter(100, TimeUnit.MILLISECONDS)
+                        .withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
                         .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
                 log.info("helloReply: {}", helloReply);
-            } catch (Throwable e) {
-                log.error("greeter.say", e);
-            }
         }
     }
 

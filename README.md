@@ -154,7 +154,7 @@ public class Client {
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         // 使用channel调用后端服务
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
-        HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(100, TimeUnit.MILLISECONDS)
+        HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
                 .sayHello(HelloRequest.newBuilder().setName("grpc-pure").build());
         System.out.print(helloReply);
     }
