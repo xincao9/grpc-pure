@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fun.golinks</groupId>
     <artifactId>grpc-pure</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <name>grpc-pure</name>
     <description>
         Grpc作为优秀的开源框架受到大厂的青睐，但是对于小企业来说，不具备进行扩展的能力。有幸本人曾就职过一家互联网公司做过大规模Grpc服务的实战落地项目。所以将以往经验沉淀到这个项目中提供给需要的人使用
