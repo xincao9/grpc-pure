@@ -2,7 +2,7 @@ package fun.golinks.grpc.pure.annotation;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.FIELD})
+@Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface GrpcCall {

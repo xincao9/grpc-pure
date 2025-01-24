@@ -34,9 +34,13 @@ public class ReflectUtils {
     /**
      * 获取对象字段标记的注解对象
      *
-     * @param object          对象
-     * @param annotationClass 注解类class
-     * @param <T>             注解类
+     * @param object
+     *            对象
+     * @param annotationClass
+     *            注解类class
+     * @param <T>
+     *            注解类
+     * 
      * @return 注解对象
      */
     public <T extends Annotation> T getFieldAnnotation(Object object, Class<T> annotationClass) {
