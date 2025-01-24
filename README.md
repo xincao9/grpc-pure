@@ -19,7 +19,7 @@ Grpc作为优秀的开源框架受到大厂的青睐，但是对于小企业来�
 <dependency>
     <groupId>fun.golinks</groupId>
     <artifactId>grpc-pure</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 #### 编译protobuf文件插件 【可选】
