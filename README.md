@@ -93,13 +93,18 @@ public class Server {
     private static final String APP_NAME = "greeter";
 
     public static void main(String... args) {
+        int port = 9999;
         // 注册中心，服务注册
         NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
                 .setAppName(APP_NAME) // 应用名
+                .setServerAddress("127.0.0.1:8848")
+                .setUsername("nacos")
+                .setPassword("nacos")
+                .setPort(port) // 后端服务监听端口
                 .build();
         // 启动后端服务
         GrpcServer.newBuilder()
-                .setPort(9999)
+                .setPort(port)
                 .addService(new GreeterImpl()) // 添加服务实现类
                 .setServerRegister(nacosServerRegister)
                 .build();
@@ -137,7 +142,11 @@ public class Client {
 
     public static void main(String... args) {
         // 注册中心，服务发现；对nacos:{服务名}的支持
-        NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
+        NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder()
+                .setServerAddress("127.0.0.1:8848")
+                .setUsername("nacos")
+                .setPassword("nacos")
+                .build();
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
                 .build();

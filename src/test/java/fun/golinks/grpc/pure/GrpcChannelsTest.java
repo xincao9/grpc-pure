@@ -34,11 +34,16 @@ public class GrpcChannelsTest {
     @BeforeClass
     public static void setUp() throws Throwable {
         LogbackConfig.init();
+        int port = 9999;
         NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
                 .setAppName(APP_NAME)
+                .setServerAddress("127.0.0.1:8848")
+                .setUsername("nacos")
+                .setPassword("nacos")
+                .setPort(port) // 后端服务监听端口
                 .build();
         GrpcServer.newBuilder()
-                .setPort(9999)
+                .setPort(port)
                 .addService(new GreeterImpl())
                 .setServerRegister(nacosServerRegister)
                 .build();
@@ -50,7 +55,11 @@ public class GrpcChannelsTest {
 
     @Test
     public void testCreate() throws Throwable {
-        NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder().build();
+        NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder()
+                .setServerAddress("127.0.0.1:8848")
+                .setUsername("nacos")
+                .setPassword("nacos")
+                .build();
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
                 .build();
