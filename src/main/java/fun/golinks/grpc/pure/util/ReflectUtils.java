@@ -43,7 +43,7 @@ public class ReflectUtils {
      * 
      * @return 注解对象
      */
-    public <T extends Annotation> T getFieldAnnotation(Object object, Class<T> annotationClass) {
+    public static <T extends Annotation> T getFieldAnnotation(Object object, Class<T> annotationClass) {
         Class<?> clazz = ReflectUtils.getUserClass(object);
         Field[] fields = clazz.getDeclaredFields();
         if (ArrayUtils.isNotEmpty(fields)) {
