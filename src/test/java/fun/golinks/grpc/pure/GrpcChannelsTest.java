@@ -67,7 +67,7 @@ public class GrpcChannelsTest {
                 .setExecutor(grpcThreadPoolExecutor)
                 .setClientInterceptors(Collections.singleton(new LoggerClientInterceptor()))
                 .setLoadBalancerProvider(new WeightRandomLoadBalancerProvider())
-//                .setDefaultLoadBalancingPolicy("weight_random")
+                .setDefaultLoadBalancingPolicy("weight_random")
                 .build();
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
