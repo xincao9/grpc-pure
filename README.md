@@ -1,62 +1,87 @@
 # Grpc-Pure
 
-Grpc作为优秀的开源框架受到大厂的青睐，但是对于小企业来说，不具备进行扩展的能力。有幸本人曾就职过一家互联网公司做过大规模Grpc服务的实战落地项目。所以将以往经验沉淀到这个项目中提供给需要的人使用
+## 项目简介
 
-## 提供的能力点
+Grpc作为一个优秀的开源RPC框架，广泛受到互联网大厂的青睐。然而，对小型企业而言，其扩展性和复杂度可能成为障碍。有幸参与过一家互联网公司大规模Grpc服务的落地实践，因此将这些实战经验沉淀后，推出了**Grpc-Pure**，希望能为需要简化Grpc接入的小型团队提供帮助。
 
-1. 服务端添加对注册中心的插座，方便添加注册中心；目前内置对nacos的支持
-2. 客户端添加ping机制
-3. 客户端添加对注册中心的插座，方便添加服务发现；目前内置对nacos://{服务名} 协议的支持
+---
 
-## 代码示例
+## 功能特性
 
-演示代码依赖nacos-server，请自行安装 [nacos-server](https://nacos.io/docs/v2.3/quickstart/quick-start/?spm=5238cd80.6a33be36.0.0.378b1e5dQqZvG2)
+1. **服务端注册中心支持**
+    - 提供可插拔接口，便于接入任意注册中心。
+    - 内置对 Nacos 的支持。
 
-### 添加依赖
+2. **客户端增强功能**
+    - 内置 Ping 机制，支持连接健康检查。
+    - 提供服务发现可插拔接口，轻松实现服务自动发现。
+    - 内置 `nacos://{服务名}` 协议支持，实现与 Nacos 的无缝对接。
+
+---
+
+## 快速开始
+
+以下示例依赖 [Nacos Server](https://nacos.io/docs/v2.3/quickstart/quick-start)，请确保已正确安装。
+
+---
+
+### 添加项目依赖
+
+在 `pom.xml` 中引入如下依赖：
 
 ```xml
-
 <dependency>
     <groupId>fun.golinks</groupId>
     <artifactId>grpc-pure</artifactId>
     <version>1.0.1</version>
 </dependency>
 ```
-#### 编译protobuf文件插件 【可选】
+
+---
+
+### [可选] 配置 Protobuf 编译插件
+
+如果需要在项目中使用 `protobuf` 文件，可添加以下 Maven 插件用于编译：
 
 ```xml
 <build>
-<extensions>
-    <extension>
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.6.2</version>
-    </extension>
-</extensions>
-<plugins>
-    <plugin>
-        <groupId>org.xolstice.maven.plugins</groupId>
-        <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
-        <configuration>
-            <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${os.detected.classifier}</protocArtifact>
-            <pluginId>grpc-java</pluginId>
-            <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.42.1:exe:${os.detected.classifier}</pluginArtifact>
-        </configuration>
-        <executions>
-            <execution>
-                <goals>
-                    <goal>compile</goal>
-                    <goal>compile-custom</goal>
-                </goals>
-            </execution>
-        </executions>
-    </plugin>
-</plugins>
+    <extensions>
+        <extension>
+            <groupId>kr.motd.maven</groupId>
+            <artifactId>os-maven-plugin</artifactId>
+            <version>1.6.2</version>
+        </extension>
+    </extensions>
+    <plugins>
+        <plugin>
+            <groupId>org.xolstice.maven.plugins</groupId>
+            <artifactId>protobuf-maven-plugin</artifactId>
+            <version>0.6.1</version>
+            <configuration>
+                <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${os.detected.classifier}</protocArtifact>
+                <pluginId>grpc-java</pluginId>
+                <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.42.1:exe:${os.detected.classifier}</pluginArtifact>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>compile</goal>
+                        <goal>compile-custom</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
 </build>
 ```
 
-### 定义protobuf文件（greeter.proto）; 一般位于 src/main/proto目录下
+---
+
+### 定义 Protobuf 文件
+
+为 GRPC 定义基本的 Protobuf 文件，例如 `greeter.proto`，建议放置于 `src/main/proto` 目录下。
+
+示例内容如下：
 
 ```protobuf
 syntax = "proto3";
@@ -65,24 +90,28 @@ package fun.golinks.grpc.pure;
 
 option java_multiple_files = true;
 
-// The greeting service definition.
+// 服务接口定义
 service Greeter {
-  // Sends a greeting
+  // 定义 SayHello 方法
   rpc SayHello (HelloRequest) returns (HelloReply) {}
 }
 
-// The request message containing the user's name.
+// 请求消息结构
 message HelloRequest {
-  string name = 1;
+  string name = 1; // 用户名称
 }
 
-// The response message containing the greetings
+// 响应消息结构
 message HelloReply {
-  string message = 1;
+  string message = 1; // 返回消息内容
 }
 ```
 
+---
+
 ### 启动服务端
+
+服务端代码示例：
 
 ```java
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
@@ -94,15 +123,15 @@ public class Server {
 
     public static void main(String... args) {
         int port = 9999;
-        // 注册中心，服务注册
+        // 配置注册中心
         NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
-                .setAppName(APP_NAME) // 应用名
+                .setAppName(APP_NAME) // 应用名称
                 .setServerAddress("127.0.0.1:8848")
                 .setUsername("nacos")
                 .setPassword("nacos")
                 .setPort(port) // 后端服务监听端口
                 .build();
-        // 启动后端服务
+        // 启动 GRPC 服务
         GrpcServer.newBuilder()
                 .setPort(port)
                 .addService(new GreeterImpl()) // 添加服务实现类
@@ -111,14 +140,15 @@ public class Server {
     }
 
     /**
-     * 实现Greeter服务
+     * 实现 Greeter 服务逻辑
      */
     public static class GreeterImpl extends GreeterGrpc.GreeterImplBase {
 
         @Override
         public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
             HelloReply reply = HelloReply.newBuilder()
-                    .setMessage(String.format("Server:Hello %s", req.getName())).build();
+                    .setMessage(String.format("Server: Hello %s", req.getName()))
+                    .build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
         }
@@ -126,7 +156,11 @@ public class Server {
 }
 ```
 
+---
+
 ### 启动客户端
+
+客户端代码示例：
 
 ```java
 import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
@@ -136,12 +170,14 @@ import fun.golinks.grpc.pure.GrpcChannels;
 import fun.golinks.grpc.pure.HelloReply;
 import fun.golinks.grpc.pure.GreeterGrpc;
 
+import java.util.concurrent.TimeUnit;
+
 public class Client {
 
     private static final String APP_NAME = "greeter";
 
     public static void main(String... args) {
-        // 注册中心，服务发现；对nacos:{服务名}的支持
+        // 配置服务发现
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder()
                 .setServerAddress("127.0.0.1:8848")
                 .setUsername("nacos")
@@ -150,13 +186,18 @@ public class Client {
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
                 .build();
-        // 创建channel
+        // 创建 Channel
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
-        // 使用channel调用后端服务
+        // 调用后端服务
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
-        HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
+        HelloReply helloReply = greeterBlockingStub
+                .withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
                 .sayHello(HelloRequest.newBuilder().setName("grpc-pure").build());
         System.out.print(helloReply);
     }
 }
 ```
+
+---
+
+至此，您已经成功完成了基于 **Grpc-Pure** 框架的简单服务端和客户端应用配置，欢迎尝试更多特性并反馈！
