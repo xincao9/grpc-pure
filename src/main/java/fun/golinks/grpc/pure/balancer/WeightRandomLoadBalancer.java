@@ -2,15 +2,17 @@ package fun.golinks.grpc.pure.balancer;
 
 import fun.golinks.grpc.pure.constant.SystemConsts;
 import io.grpc.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class WeightRoundRobinLoadBalancer extends LoadBalancer {
+@Slf4j
+public class WeightRandomLoadBalancer extends LoadBalancer {
     private final Helper helper;
     private SubchannelPicker currentPicker;
 
-    public WeightRoundRobinLoadBalancer(Helper helper) {
+    public WeightRandomLoadBalancer(Helper helper) {
         this.helper = helper;
     }
 
@@ -27,7 +29,7 @@ public class WeightRoundRobinLoadBalancer extends LoadBalancer {
                         CreateSubchannelArgs.newBuilder().setAddresses(equivalentAddressGroup).build()))
                 .collect(Collectors.toList());
         // 更新当前 picker
-        currentPicker = new WeightRoundRobinPicker(subchannels);
+        currentPicker = new WeightRandomRobinPicker(subchannels);
         helper.updateBalancingState(ConnectivityState.READY, currentPicker);
     }
 
@@ -42,11 +44,11 @@ public class WeightRoundRobinLoadBalancer extends LoadBalancer {
         currentPicker = null;
     }
 
-    private static class WeightRoundRobinPicker extends SubchannelPicker {
+    private static class WeightRandomRobinPicker extends SubchannelPicker {
         private final List<Subchannel> subchannels;
         private final List<Double> weights;
 
-        WeightRoundRobinPicker(List<Subchannel> subchannels) {
+        private WeightRandomRobinPicker(List<Subchannel> subchannels) {
             this.subchannels = subchannels;
             this.weights = subchannels.stream().map(subchannel -> {
                 double weight = 1000.0;
@@ -69,11 +71,11 @@ public class WeightRoundRobinLoadBalancer extends LoadBalancer {
             int size = subchannels.size();
             double totalWeight = weights.stream().reduce(0.0, Double::sum);
             double randomPoint = Math.random() * totalWeight;
-
             for (int i = 0; i < size; i++) {
                 randomPoint -= weights.get(i);
                 if (randomPoint <= 0) {
-                    return PickResult.withSubchannel(subchannels.get(i));
+                    Subchannel subchannel = subchannels.get(i);
+                    return PickResult.withSubchannel(subchannel);
                 }
             }
             return PickResult.withSubchannel(subchannels.get(0));

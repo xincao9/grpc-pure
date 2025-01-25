@@ -3,7 +3,7 @@ package fun.golinks.grpc.pure.balancer;
 import io.grpc.LoadBalancer;
 import io.grpc.LoadBalancerProvider;
 
-public class WeightRoundRobinLoadBalancerProvider extends LoadBalancerProvider {
+public class WeightRandomLoadBalancerProvider extends LoadBalancerProvider {
 
     @Override
     public boolean isAvailable() {
@@ -17,11 +17,11 @@ public class WeightRoundRobinLoadBalancerProvider extends LoadBalancerProvider {
 
     @Override
     public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
-        return new WeightRoundRobinLoadBalancer(helper);
+        return new WeightRandomLoadBalancer(helper);
     }
 
     @Override
     public String getPolicyName() {
-        return "weight_round_robin";
+        return "weight_random";
     }
 }

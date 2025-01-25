@@ -4,11 +4,13 @@ import com.alibaba.nacos.common.utils.CollectionUtils;
 import fun.golinks.grpc.pure.core.PingRunner;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 客户端
@@ -21,9 +23,10 @@ public class GrpcChannels {
     private final LoadBalancerProvider loadBalancerProvider;
     private final Set<ClientInterceptor> clientInterceptors;
     private final Executor executor;
+    private final String defaultLoadBalancingPolicy;
 
     private GrpcChannels(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider,
-            Boolean enablePing, Set<ClientInterceptor> clientInterceptors, Executor executor) {
+            Boolean enablePing, Set<ClientInterceptor> clientInterceptors, Executor executor, String defaultLoadBalancingPolicy) {
         this.nameResolverProvider = nameResolverProvider;
         this.loadBalancerProvider = loadBalancerProvider;
         this.managedChannelMap = new ConcurrentHashMap<>();
@@ -33,6 +36,7 @@ public class GrpcChannels {
         }
         this.clientInterceptors = clientInterceptors;
         this.executor = executor;
+        this.defaultLoadBalancingPolicy = defaultLoadBalancingPolicy;
     }
 
     public static Builder newBuilder() {
@@ -60,6 +64,9 @@ public class GrpcChannels {
             LoadBalancerRegistry.getDefaultRegistry().register(loadBalancerProvider);
         }
         ManagedChannelBuilder<?> managedChannelBuilder = ManagedChannelBuilder.forTarget(target).usePlaintext();
+        if (StringUtils.isNotBlank(defaultLoadBalancingPolicy)) {
+            managedChannelBuilder.defaultLoadBalancingPolicy(defaultLoadBalancingPolicy);
+        }
         if (CollectionUtils.isNotEmpty(clientInterceptors)) {
             clientInterceptors.forEach(managedChannelBuilder::intercept);
         }
@@ -75,6 +82,7 @@ public class GrpcChannels {
         private LoadBalancerProvider loadBalancerProvider;
         private Set<ClientInterceptor> clientInterceptors;
         private Executor executor;
+        private String defaultLoadBalancingPolicy;
 
         public Builder enablePing(Boolean enablePing) {
             this.enablePing = enablePing;
@@ -101,9 +109,14 @@ public class GrpcChannels {
             return this;
         }
 
+        public Builder setDefaultLoadBalancingPolicy(String defaultLoadBalancingPolicy) {
+            this.defaultLoadBalancingPolicy = defaultLoadBalancingPolicy;
+            return this;
+        }
+
         public GrpcChannels build() throws Throwable {
             return new GrpcChannels(nameResolverProvider, loadBalancerProvider, enablePing, clientInterceptors,
-                    executor);
+                    executor, defaultLoadBalancingPolicy);
         }
     }
 }

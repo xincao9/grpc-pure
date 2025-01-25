@@ -1,7 +1,7 @@
 package fun.golinks.grpc.pure;
 
 import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
-import fun.golinks.grpc.pure.balancer.WeightRoundRobinLoadBalancerProvider;
+import fun.golinks.grpc.pure.balancer.WeightRandomLoadBalancerProvider;
 import fun.golinks.grpc.pure.config.LogbackConfig;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
@@ -66,7 +66,8 @@ public class GrpcChannelsTest {
                 .setNameResolverProvider(nacosNameResolverProvider)
                 .setExecutor(grpcThreadPoolExecutor)
                 .setClientInterceptors(Collections.singleton(new LoggerClientInterceptor()))
-                .setLoadBalancerProvider(new WeightRoundRobinLoadBalancerProvider())
+                .setLoadBalancerProvider(new WeightRandomLoadBalancerProvider())
+//                .setDefaultLoadBalancingPolicy("weight_random")
                 .build();
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
