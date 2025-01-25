@@ -1,19 +1,16 @@
 package fun.golinks.grpc.pure.balancer;
 
-import io.grpc.ConnectivityState;
-import io.grpc.EquivalentAddressGroup;
-import io.grpc.LoadBalancer;
-import io.grpc.Status;
+import fun.golinks.grpc.pure.constant.SystemConsts;
+import io.grpc.*;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class RoundRobinLoadBalancer extends LoadBalancer {
+public class WeightRoundRobinLoadBalancer extends LoadBalancer {
     private final Helper helper;
     private SubchannelPicker currentPicker;
 
-    public RoundRobinLoadBalancer(Helper helper) {
+    public WeightRoundRobinLoadBalancer(Helper helper) {
         this.helper = helper;
     }
 
@@ -30,7 +27,7 @@ public class RoundRobinLoadBalancer extends LoadBalancer {
                         CreateSubchannelArgs.newBuilder().setAddresses(equivalentAddressGroup).build()))
                 .collect(Collectors.toList());
         // 更新当前 picker
-        currentPicker = new RoundRobinPicker(subchannels);
+        currentPicker = new WeightRoundRobinPicker(subchannels);
         helper.updateBalancingState(ConnectivityState.READY, currentPicker);
     }
 
@@ -45,12 +42,25 @@ public class RoundRobinLoadBalancer extends LoadBalancer {
         currentPicker = null;
     }
 
-    private static class RoundRobinPicker extends SubchannelPicker {
-        private final List<Subchannel> subchannels;
-        private final AtomicInteger currentIndex = new AtomicInteger(0);
 
-        RoundRobinPicker(List<Subchannel> subchannels) {
+    private static class WeightRoundRobinPicker extends SubchannelPicker {
+        private final List<Subchannel> subchannels;
+        private final List<Double> weights;
+
+
+        WeightRoundRobinPicker(List<Subchannel> subchannels) {
             this.subchannels = subchannels;
+            this.weights = subchannels.stream().map(subchannel -> {
+                double weight = 1000.0;
+                Attributes attributes = subchannel.getAttributes();
+                if (attributes != null) {
+                    Double attributeWeight = attributes.get(SystemConsts.WEIGHT_ATTRIBUTE);
+                    if (attributeWeight != null) {
+                        weight = attributeWeight;
+                    }
+                }
+                return weight;
+            }).collect(Collectors.toList());
         }
 
         @Override
@@ -58,9 +68,17 @@ public class RoundRobinLoadBalancer extends LoadBalancer {
             if (subchannels.isEmpty()) {
                 return PickResult.withNoResult();
             }
-            int index = currentIndex.getAndUpdate(i -> (i + 1) % subchannels.size());
-            Subchannel subchannel = subchannels.get(index);
-            return PickResult.withSubchannel(subchannel);
+            int size = subchannels.size();
+            double totalWeight = weights.stream().reduce(0.0, Double::sum);
+            double randomPoint = Math.random() * totalWeight;
+
+            for (int i = 0; i < size; i++) {
+                randomPoint -= weights.get(i);
+                if (randomPoint <= 0) {
+                    return PickResult.withSubchannel(subchannels.get(i));
+                }
+            }
+            return PickResult.withSubchannel(subchannels.get(0));
         }
     }
 }

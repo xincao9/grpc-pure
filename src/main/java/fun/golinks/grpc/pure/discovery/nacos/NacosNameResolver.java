@@ -4,6 +4,7 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import fun.golinks.grpc.pure.constant.SystemConsts;
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
@@ -20,9 +21,6 @@ import java.util.Map;
 @Slf4j
 public class NacosNameResolver extends NameResolver {
 
-    private static final String REGISTRATION_TIME_PROPS = "registration-time";
-    private static final Attributes.Key<Long> REGISTRATION_TIME_ATTRIBUTE = Attributes.Key
-            .create(REGISTRATION_TIME_PROPS);
     private final NamingService namingService;
     private final URI targetUri;
 
@@ -57,18 +55,17 @@ public class NacosNameResolver extends NameResolver {
             if (!instance.isEnabled() || !instance.isHealthy()) {
                 continue;
             }
-            Attributes attributes = Attributes.EMPTY;
+            Attributes.Builder builder = Attributes.newBuilder();
             Map<String, String> metadata = instance.getMetadata();
             if (metadata != null && !metadata.isEmpty()) {
-                Attributes.Builder builder = Attributes.newBuilder();
-                String value = metadata.get(REGISTRATION_TIME_PROPS);
+                String value = metadata.get(SystemConsts.REGISTRATION_TIME_PROPS);
                 if (StringUtils.isNotBlank(value)) {
-                    builder.set(REGISTRATION_TIME_ATTRIBUTE, Long.parseLong(value));
+                    builder.set(SystemConsts.REGISTRATION_TIME_ATTRIBUTE, Long.parseLong(value));
                 }
-                attributes = builder.build();
             }
+            builder.set(SystemConsts.WEIGHT_ATTRIBUTE, instance.getWeight());
             equivalentAddressGroups.add(new EquivalentAddressGroup(
-                    new InetSocketAddress(instance.getIp(), instance.getPort()), attributes));
+                    new InetSocketAddress(instance.getIp(), instance.getPort()), builder.build()));
         }
         if (equivalentAddressGroups.isEmpty()) {
             return;
