@@ -36,7 +36,12 @@ public class GrpcChannelsTest {
     @BeforeClass
     public static void setUp() throws Throwable {
         LogbackConfig.init();
-        int port = 9999;
+        for (int port = 9999; port < 10002; port++) {
+            setUpServer(port);
+        }
+    }
+
+    private static void setUpServer(int port) throws Throwable {
         NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
                 .setAppName(APP_NAME)
                 .setServerAddress("127.0.0.1:8848")
@@ -71,7 +76,7 @@ public class GrpcChannelsTest {
                 .build();
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
                 HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
                         .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
                 log.info("helloReply: {}", helloReply);
