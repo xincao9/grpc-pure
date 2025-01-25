@@ -18,6 +18,5 @@ public class SystemConsts {
             .create(REGISTRATION_TIME_PROPS);
 
     public static final String WEIGHT_PROPS = "weight";
-    public static final Attributes.Key<Double> WEIGHT_ATTRIBUTE = Attributes.Key
-            .create(WEIGHT_PROPS);
+    public static final Attributes.Key<Double> WEIGHT_ATTRIBUTE = Attributes.Key.create(WEIGHT_PROPS);
 }

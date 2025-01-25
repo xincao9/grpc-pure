@@ -42,11 +42,9 @@ public class WeightRoundRobinLoadBalancer extends LoadBalancer {
         currentPicker = null;
     }
 
-
     private static class WeightRoundRobinPicker extends SubchannelPicker {
         private final List<Subchannel> subchannels;
         private final List<Double> weights;
-
 
         WeightRoundRobinPicker(List<Subchannel> subchannels) {
             this.subchannels = subchannels;
