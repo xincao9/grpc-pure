@@ -2,7 +2,6 @@ package fun.golinks.grpc.pure.discovery.nacos;
 
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
-import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import fun.golinks.grpc.pure.constant.SystemConsts;
 import io.grpc.Attributes;
@@ -34,9 +33,7 @@ public class NacosNameResolver extends NameResolver {
         String serviceName = getServiceAuthority();
         onResult(listener, serviceName);
         try {
-            namingService.subscribe(serviceName, event -> {
-                changeHandler(listener, (NamingEvent) event);
-            });
+            namingService.subscribe(serviceName, event -> onResult(listener, serviceName));
         } catch (Throwable e) {
             log.error("namingService.subscribe", e);
         }
@@ -72,14 +69,6 @@ public class NacosNameResolver extends NameResolver {
         }
         listener.onResult(
                 ResolutionResult.newBuilder().setAddressesOrError(StatusOr.fromValue(equivalentAddressGroups)).build());
-    }
-
-    /**
-     * 实例列表变更本地缓存
-     */
-    private void changeHandler(Listener2 listener, NamingEvent namingEvent) {
-        String serviceName = namingEvent.getServiceName();
-        onResult(listener, serviceName);
     }
 
     @Override
