@@ -26,7 +26,8 @@ public class GrpcChannels {
     private final String defaultLoadBalancingPolicy;
 
     private GrpcChannels(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider,
-            Boolean enablePing, Set<ClientInterceptor> clientInterceptors, Executor executor, String defaultLoadBalancingPolicy) {
+            Boolean enablePing, Set<ClientInterceptor> clientInterceptors, Executor executor,
+            String defaultLoadBalancingPolicy) {
         this.nameResolverProvider = nameResolverProvider;
         this.loadBalancerProvider = loadBalancerProvider;
         this.managedChannelMap = new ConcurrentHashMap<>();
