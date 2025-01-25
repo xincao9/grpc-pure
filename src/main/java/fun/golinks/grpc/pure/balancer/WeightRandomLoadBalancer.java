@@ -70,6 +70,9 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
             }
             int size = subchannels.size();
             double totalWeight = weights.stream().reduce(0.0, Double::sum);
+            if (totalWeight <= 0) {
+                return PickResult.withSubchannel(subchannels.get(0));
+            }
             double randomPoint = Math.random() * totalWeight;
             for (int i = 0; i < size; i++) {
                 randomPoint -= weights.get(i);
