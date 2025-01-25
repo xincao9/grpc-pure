@@ -26,7 +26,8 @@ public class RoundRobinLoadBalancer extends LoadBalancer {
         }
         // 创建 Subchannels
         List<Subchannel> subchannels = addresses.stream()
-                .map(equivalentAddressGroup -> helper.createSubchannel(CreateSubchannelArgs.newBuilder().setAddresses(equivalentAddressGroup).build()))
+                .map(equivalentAddressGroup -> helper.createSubchannel(
+                        CreateSubchannelArgs.newBuilder().setAddresses(equivalentAddressGroup).build()))
                 .collect(Collectors.toList());
         // 更新当前 picker
         currentPicker = new RoundRobinPicker(subchannels);
@@ -35,7 +36,8 @@ public class RoundRobinLoadBalancer extends LoadBalancer {
 
     @Override
     public void handleNameResolutionError(Status error) {
-        helper.updateBalancingState(ConnectivityState.TRANSIENT_FAILURE, new FixedResultPicker(PickResult.withError(error)));
+        helper.updateBalancingState(ConnectivityState.TRANSIENT_FAILURE,
+                new FixedResultPicker(PickResult.withError(error)));
     }
 
     @Override
