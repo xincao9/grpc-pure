@@ -89,16 +89,15 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
                 AtomicReference<ConnectivityState> stateAtomicReference = subchannel.getAttributes().get(STATE_INFO);
                 ConnectivityState currentState = Objects.requireNonNull(stateAtomicReference).get();
                 ConnectivityState newState = stateInfo.getState();
-                if (newState == ConnectivityState.READY) {
-                    subchannel.requestConnection();
-                } else {
-                    log.warn("subchannel socketAddress = {} currentState = {}, newState = {}", socketAddress,
-                            currentState, newState);
-                }
+                log.warn("subchannel socketAddress = {} currentState = {}, newState = {}", socketAddress, currentState,
+                        newState);
                 stateAtomicReference.set(newState);
                 List<Subchannel> subchannels = subchannelMap.values().stream().filter(sc -> Objects
                         .requireNonNull(sc.getAttributes().get(STATE_INFO)).get() == ConnectivityState.READY)
                         .collect(Collectors.toList());
+                /**
+                 * 判断活跃连接是否位空，更新状态和Picker
+                 */
                 if (subchannels.isEmpty()) {
                     helper.updateBalancingState(ConnectivityState.CONNECTING,
                             new FixedResultPicker(PickResult.withNoResult()));
@@ -107,6 +106,9 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
                 }
             }
         });
+        /**
+         * 建立连接
+         */
         subchannel.requestConnection();
         return subchannel;
     }
