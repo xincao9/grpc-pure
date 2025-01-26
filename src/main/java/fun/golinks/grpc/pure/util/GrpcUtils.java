@@ -10,15 +10,18 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
+import java.nio.charset.StandardCharsets;
 
 public class GrpcUtils {
 
     public static Throwable setCause(Metadata trailers, Status status) {
         if (status.getCode() == Status.Code.UNKNOWN) {
             Throwable throwable = status.getCause();
-            if (throwable != null) {
-                trailers.put(SystemConsts.EXCEPTION_STACK_TRACE_KEY, GrpcUtils.getStackTraceAsString(throwable));
+            if (throwable == null) {
+                return null;
             }
+            trailers.put(SystemConsts.EXCEPTION_STACK_TRACE_KEY,
+                    GrpcUtils.getStackTraceAsString(throwable).getBytes(StandardCharsets.UTF_8));
             return throwable;
         }
         return null;
@@ -31,7 +34,11 @@ public class GrpcUtils {
         if (trailers == null) {
             return null;
         }
-        String stacktrace = trailers.get(SystemConsts.EXCEPTION_STACK_TRACE_KEY);
+        byte[] bytes = trailers.get(SystemConsts.EXCEPTION_STACK_TRACE_KEY);
+        if (bytes == null) {
+            return null;
+        }
+        String stacktrace = new String(bytes, StandardCharsets.UTF_8);
         if (StringUtils.isBlank(stacktrace)) {
             return null;
         }

@@ -36,7 +36,7 @@ public class GrpcChannelsTest {
     @BeforeClass
     public static void setUp() throws Throwable {
         LogbackConfig.init();
-        for (int port = 9999; port < 10002; port++) {
+        for (int port = 9999; port < 10000; port++) {
             setUpServer(port);
         }
     }

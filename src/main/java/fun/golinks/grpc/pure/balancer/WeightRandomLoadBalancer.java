@@ -80,9 +80,9 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         }
     }
 
-    private Subchannel start(SocketAddress socketAddress, Subchannel subchannel) {
+    private void start(SocketAddress socketAddress, Subchannel subchannel) {
         if (subchannelMap.containsKey(socketAddress)) {
-            return subchannel;
+            return;
         }
         subchannel.start(stateInfo -> {
             synchronized (lock) {
@@ -95,7 +95,7 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
                 List<Subchannel> subchannels = subchannelMap.values().stream().filter(sc -> Objects
                         .requireNonNull(sc.getAttributes().get(STATE_INFO)).get() == ConnectivityState.READY)
                         .collect(Collectors.toList());
-                /**
+                /*
                  * 判断活跃连接是否位空，更新状态和Picker
                  */
                 if (subchannels.isEmpty()) {
@@ -106,11 +106,10 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
                 }
             }
         });
-        /**
+        /*
          * 建立连接
          */
         subchannel.requestConnection();
-        return subchannel;
     }
 
     @Override
