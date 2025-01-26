@@ -119,8 +119,8 @@ public class GrpcChannelsTest {
                  */
                 HelloReply helloReply = grpcInvoker.exec(helloRequest);
                 log.info("helloReply: {}", helloReply.getMessage());
-            } catch (Throwable e) {
-                log.error("grpc", e);
+            } catch (GreeterException e) {
+                log.error("测试Case异常 grpc", e);
             }
         }
     }
@@ -137,7 +137,7 @@ public class GrpcChannelsTest {
             HelloReply reply = HelloReply.newBuilder()
                     .setMessage(String.format("Server:Hello %s", helloRequest.getName())).build();
             if (RandomUtils.nextInt(0, 100) == 0) {
-                throw new IllegalArgumentException("随机错误");
+                throw new GreeterException("随机错误");
             }
             return reply;
         };
@@ -155,4 +155,14 @@ public class GrpcChannelsTest {
         }
     }
 
+    public static class GreeterException extends RuntimeException {
+
+        public GreeterException() {
+            super();
+        }
+
+        public GreeterException(String message) {
+            super(message);
+        }
+    }
 }
