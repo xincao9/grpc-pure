@@ -1,6 +1,5 @@
 package fun.golinks.grpc.pure.balancer;
 
-import fun.golinks.grpc.pure.constant.SystemConsts;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,20 +32,13 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
             return;
         }
         Map<SocketAddress, Attributes> attributesMap = new HashMap<>();
-        Set<SocketAddress> newAddresses = newEquivalentAddressGroups.stream()
-                .flatMap(new Function<EquivalentAddressGroup, Stream<SocketAddress>>() {
-                    @Override
-                    public Stream<SocketAddress> apply(EquivalentAddressGroup equivalentAddressGroup) {
-                        return equivalentAddressGroup.getAddresses().stream()
-                                .map(new Function<SocketAddress, SocketAddress>() {
-                                    @Override
-                                    public SocketAddress apply(SocketAddress socketAddress) {
-                                        attributesMap.put(socketAddress, equivalentAddressGroup.getAttributes());
-                                        return socketAddress;
-                                    }
-                                });
-                    }
-                }).collect(Collectors.toSet());
+        Set<SocketAddress> newAddresses = newEquivalentAddressGroups.stream().flatMap(
+                (Function<EquivalentAddressGroup, Stream<SocketAddress>>) equivalentAddressGroup -> equivalentAddressGroup
+                        .getAddresses().stream().map(socketAddress -> {
+                            attributesMap.put(socketAddress, equivalentAddressGroup.getAttributes());
+                            return socketAddress;
+                        }))
+                .collect(Collectors.toSet());
 
         Map<SocketAddress, Subchannel> newSubchannelMap = newAddresses.stream()
                 .filter(address -> !subchannelMap.containsKey(address)).map(address -> {
@@ -60,12 +52,8 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
                             .setAddresses(new EquivalentAddressGroup(address)).setAttributes(builder.build()).build());
                     start(address, subchannel);
                     return subchannel;
-                }).collect(Collectors.toConcurrentMap(new Function<Subchannel, SocketAddress>() {
-                    @Override
-                    public SocketAddress apply(Subchannel subchannel) {
-                        return subchannel.getAddresses().getAddresses().get(0);
-                    }
-                }, s -> s));
+                }).collect(Collectors.toConcurrentMap(subchannel -> subchannel.getAddresses().getAddresses().get(0),
+                        s -> s));
         for (Map.Entry<SocketAddress, Subchannel> entry : newSubchannelMap.entrySet()) {
             SocketAddress address = entry.getKey();
             if (!subchannelMap.containsKey(address)) {
@@ -126,45 +114,4 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         });
     }
 
-    private static class WeightRandomRobinPicker extends SubchannelPicker {
-
-        private final List<Subchannel> subchannels;
-        private final List<Double> weights;
-
-        private WeightRandomRobinPicker(List<Subchannel> subchannels) {
-            this.subchannels = subchannels;
-            this.weights = subchannels.stream().map(subchannel -> {
-                double weight = 1000.0;
-                Attributes attributes = subchannel.getAttributes();
-                if (attributes != null) {
-                    Double attributeWeight = attributes.get(SystemConsts.WEIGHT_ATTRIBUTE);
-                    if (attributeWeight != null) {
-                        weight = attributeWeight;
-                    }
-                }
-                return weight;
-            }).collect(Collectors.toList());
-        }
-
-        @Override
-        public PickResult pickSubchannel(PickSubchannelArgs args) {
-            if (subchannels.isEmpty()) {
-                return PickResult.withNoResult();
-            }
-            int size = subchannels.size();
-            double totalWeight = weights.stream().reduce(0.0, Double::sum);
-            if (totalWeight <= 0) {
-                return PickResult.withSubchannel(subchannels.get(0));
-            }
-            double randomPoint = Math.random() * totalWeight;
-            for (int i = 0; i < size; i++) {
-                randomPoint -= weights.get(i);
-                if (randomPoint <= 0) {
-                    Subchannel subchannel = subchannels.get(i);
-                    return PickResult.withSubchannel(subchannel);
-                }
-            }
-            return PickResult.withSubchannel(subchannels.get(0));
-        }
-    }
 }

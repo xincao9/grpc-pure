@@ -24,4 +24,6 @@ public class SystemConsts {
     public static final String EXCEPTION_STACK_TRACE = "exception-stack-trace-bin";
     public static final Metadata.Key<byte[]> EXCEPTION_STACK_TRACE_KEY = Metadata.Key.of(EXCEPTION_STACK_TRACE,
             Metadata.BINARY_BYTE_MARSHALLER);
+
+    public static final Long WARMUP_TIME_MS = 300000L;
 }

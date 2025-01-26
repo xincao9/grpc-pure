@@ -119,7 +119,7 @@ public class GrpcChannelsTest {
                 HelloReply helloReply = grpcInvoker.apply(helloRequest);
                 log.info("helloReply: {}", helloReply.getMessage());
             } catch (GreeterException e) {
-                log.error("测试Case异常 grpc", e);
+                log.info("用于测试的异常 grpc", e);
             }
         }
     }
