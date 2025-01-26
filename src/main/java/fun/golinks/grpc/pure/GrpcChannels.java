@@ -3,6 +3,7 @@ package fun.golinks.grpc.pure;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import fun.golinks.grpc.pure.balancer.WeightRandomLoadBalancerProvider;
 import fun.golinks.grpc.pure.core.PingRunner;
+import fun.golinks.grpc.pure.interceptor.InternalClientInterceptor;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +64,7 @@ public class GrpcChannels {
         if (StringUtils.isNotBlank(defaultLoadBalancingPolicy)) {
             managedChannelBuilder.defaultLoadBalancingPolicy(defaultLoadBalancingPolicy);
         }
+        managedChannelBuilder.intercept(new InternalClientInterceptor());
         if (CollectionUtils.isNotEmpty(clientInterceptors)) {
             clientInterceptors.forEach(managedChannelBuilder::intercept);
         }

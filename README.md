@@ -117,8 +117,15 @@ message HelloReply {
 服务端代码示例：
 
 ```java
+import fun.golinks.grpc.pure.HelloRequest;
+import fun.golinks.grpc.pure.HelloReply;
+import fun.golinks.grpc.pure.GreeterGrpc;
+import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
+import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
-import fun.golinks.grpc.pure.GrpcServer;
+import fun.golinks.grpc.pure.util.*;
+import io.grpc.ManagedChannel;
+import io.grpc.stub.StreamObserver;
 
 public class Server {
 
@@ -126,7 +133,9 @@ public class Server {
 
     public static void main(String... args) {
         int port = 9999;
-        // 配置注册中心
+       /**
+        * 服务注册器
+        */
         NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
                 .setAppName(APP_NAME) // 应用名称
                 .setServerAddress("127.0.0.1:8848")
@@ -134,7 +143,9 @@ public class Server {
                 .setPassword("nacos")
                 .setPort(port) // 后端服务监听端口
                 .build();
-        // 启动 GRPC 服务
+       /**
+        * grpc服务器
+        */
         GrpcServer.newBuilder()
                 .setPort(port)
                 .addService(new GreeterImpl()) // 添加服务实现类
@@ -142,19 +153,30 @@ public class Server {
                 .build();
     }
 
-    /**
-     * 实现 Greeter 服务逻辑
-     */
+   /**
+    * 服务实现类
+    */
     public static class GreeterImpl extends GreeterGrpc.GreeterImplBase {
 
-        @Override
-        public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-            HelloReply reply = HelloReply.newBuilder()
-                    .setMessage(String.format("Server: Hello %s", req.getName()))
-                    .build();
-            responseObserver.onNext(reply);
-            responseObserver.onCompleted();
-        }
+       /**
+        * 方法处理类；单例
+        */
+       private static final GrpcFunction<HelloRequest, HelloReply> sayHelloFunction = helloRequest -> {
+          return HelloReply.newBuilder()
+                  .setMessage(String.format("Server:Hello %s", helloRequest.getName())).build();
+       };
+
+       /**
+        * 方法
+        *
+        * @param req 请求踢
+        * @param responseObserver 响应Observer
+        */
+       @Override
+       public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
+          GrpcConsumer<HelloRequest, HelloReply> grpcConsumer = GrpcConsumer.wrap(sayHelloFunction);
+          grpcConsumer.accept(req, responseObserver);
+       }
     }
 }
 ```
@@ -166,37 +188,53 @@ public class Server {
 客户端代码示例：
 
 ```java
-import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
-import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
-import io.grpc.ManagedChannel;
-import fun.golinks.grpc.pure.GrpcChannels;
+import fun.golinks.grpc.pure.HelloRequest;
 import fun.golinks.grpc.pure.HelloReply;
 import fun.golinks.grpc.pure.GreeterGrpc;
-
-import java.util.concurrent.TimeUnit;
+import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
+import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
+import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
+import fun.golinks.grpc.pure.util.*;
+import io.grpc.ManagedChannel;
+import io.grpc.stub.StreamObserver;
 
 public class Client {
 
     private static final String APP_NAME = "greeter";
 
     public static void main(String... args) {
-        // 配置服务发现
+       /**
+        * NameResolver；单例；解析 nacos://{应用名}
+        */
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder()
                 .setServerAddress("127.0.0.1:8848")
                 .setUsername("nacos")
                 .setPassword("nacos")
                 .build();
+       /**
+        * ManagedChannel管理类；单例
+        */
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
                 .build();
-        // 创建 Channel
+       /**
+        * 创建ManagedChannel；一个应用名对应一个实例
+        */
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
-        // 调用后端服务
-        GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
-        HelloReply helloReply = greeterBlockingStub
-                .withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
-                .sayHello(HelloRequest.newBuilder().setName("grpc-pure").build());
-        System.out.print(helloReply);
+       /**
+        * 方法的包裹类；单例
+        */
+       GrpcInvoker<HelloRequest, HelloReply> grpcInvoker = GrpcInvoker.wrap(helloRequest -> greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
+               .sayHello(helloRequest));
+       /**
+        * 请求体
+        */
+       HelloRequest helloRequest = HelloRequest.newBuilder().setName("grpc-pure").build();
+       /**
+        * 执行包裹类
+        */
+       HelloReply helloReply = grpcInvoker.apply(helloRequest);
+       System.out.print(helloReply);
     }
 }
 ```

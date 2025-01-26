@@ -3,7 +3,6 @@ package fun.golinks.grpc.pure;
 import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
-import fun.golinks.grpc.pure.interceptor.InternalClientInterceptor;
 import fun.golinks.grpc.pure.util.*;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
@@ -14,7 +13,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -91,7 +89,6 @@ public class GrpcChannelsTest {
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
                 .setExecutor(grpcThreadPoolExecutor)
-                .setClientInterceptors(Collections.singleton(new InternalClientInterceptor()))
                 .build();
         /**
          * 创建ManagedChannel；一个应用名对应一个实例
