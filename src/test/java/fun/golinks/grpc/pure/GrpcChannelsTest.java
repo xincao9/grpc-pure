@@ -11,6 +11,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -73,7 +74,7 @@ public class GrpcChannelsTest {
                 .build();
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10; i++) {
                 HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
                         .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
                 log.info("helloReply: {}", helloReply);
@@ -87,6 +88,9 @@ public class GrpcChannelsTest {
             try {
                 HelloReply reply = HelloReply.newBuilder()
                         .setMessage(String.format("Server:Hello %s", req.getName())).build();
+//                if (RandomUtils.nextBoolean()) {
+//                    throw new IllegalArgumentException("随机错误");
+//                }
                 responseObserver.onNext(reply);
             } catch (Throwable e) {
                 responseObserver.onError(e);

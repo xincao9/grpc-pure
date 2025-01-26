@@ -1,6 +1,7 @@
 package fun.golinks.grpc.pure.interceptor;
 
 import fun.golinks.grpc.pure.constant.SystemConsts;
+import fun.golinks.grpc.pure.util.GrpcUtils;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,15 +21,12 @@ public class InternalClientInterceptor implements ClientInterceptor {
             CallOptions callOptions, Channel next) {
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
-        String traceId = MDC.get(SystemConsts.TRACE_ID);
-        if (StringUtils.isBlank(traceId)) {
-            traceId = UUID.randomUUID().toString();
-        }
-        String finalTraceId = traceId;
+        String traceId = getTraceId();
+        String methodName = method.getFullMethodName();
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
-                headers.put(SystemConsts.TRACE_ID_KEY, finalTraceId);
+                headers.put(SystemConsts.TRACE_ID_KEY, traceId);
                 super.start(
                         new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
                             @Override
@@ -41,11 +39,13 @@ public class InternalClientInterceptor implements ClientInterceptor {
                                 long costTime = System.currentTimeMillis() - startTime;
                                 if (run.compareAndSet(false, true)) {
                                     if (status.isOk()) {
-                                        log.info(LOGGER_MESSAGE_FORMAT, finalTraceId, method.getFullMethodName(),
-                                                costTime);
+                                        log.info(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime);
                                     } else {
-                                        log.error(LOGGER_MESSAGE_FORMAT, finalTraceId, method.getFullMethodName(),
-                                                costTime, status.asRuntimeException());
+                                        Throwable throwable = GrpcUtils.parseCause(status, trailers);
+                                        if (throwable == null) {
+                                            throwable = status.asException(trailers);
+                                        }
+                                        log.error(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime, throwable);
                                     }
                                 }
                                 super.onClose(status, trailers);
@@ -57,11 +57,18 @@ public class InternalClientInterceptor implements ClientInterceptor {
             public void cancel(@Nullable String message, @Nullable Throwable cause) {
                 if (run.compareAndSet(false, true)) {
                     long costTime = System.currentTimeMillis() - startTime;
-                    log.error(LOGGER_MESSAGE_FORMAT, finalTraceId, method.getFullMethodName(), costTime,
-                            SystemConsts.STATUS_RUNTIME_EXCEPTION);
+                    log.error(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime, cause);
                 }
                 super.cancel(message, cause);
             }
         };
+    }
+
+    private static String getTraceId() {
+        String traceId = MDC.get(SystemConsts.TRACE_ID);
+        if (StringUtils.isBlank(traceId)) {
+            traceId = UUID.randomUUID().toString();
+        }
+        return traceId;
     }
 }

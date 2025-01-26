@@ -1,6 +1,7 @@
 package fun.golinks.grpc.pure.interceptor;
 
 import fun.golinks.grpc.pure.constant.SystemConsts;
+import fun.golinks.grpc.pure.util.GrpcUtils;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,6 +18,7 @@ public class InternalServerInterceptor implements ServerInterceptor {
         String traceId = headers.get(SystemConsts.TRACE_ID_KEY);
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
+        String methodName = call.getMethodDescriptor().getFullMethodName();
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(
                 next.startCall(new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
                     @Override
@@ -24,12 +26,13 @@ public class InternalServerInterceptor implements ServerInterceptor {
                         if (run.compareAndSet(false, true)) {
                             long costTime = System.currentTimeMillis() - startTime;
                             if (status.isOk()) {
-                                log.info(LOGGER_MESSAGE_FORMAT, traceId, call.getMethodDescriptor().getFullMethodName(),
-                                        costTime);
+                                log.info(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime);
                             } else {
-                                log.error(LOGGER_MESSAGE_FORMAT, traceId,
-                                        call.getMethodDescriptor().getFullMethodName(), costTime,
-                                        status.asRuntimeException());
+                                Throwable throwable = GrpcUtils.setCause(trailers, status);
+                                if (throwable == null) {
+                                    throwable = status.asException(trailers);
+                                }
+                                log.error(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime, throwable);
                             }
                         }
                         super.close(status, trailers);
@@ -40,8 +43,8 @@ public class InternalServerInterceptor implements ServerInterceptor {
             public void onCancel() {
                 if (run.compareAndSet(false, true)) {
                     long costTime = System.currentTimeMillis() - startTime;
-                    log.error(LOGGER_MESSAGE_FORMAT, traceId, call.getMethodDescriptor().getFullMethodName(), costTime,
-                            SystemConsts.STATUS_RUNTIME_EXCEPTION);
+                    log.error(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime,
+                            SystemConsts.CANCELLED_STATUS_RUNTIME_EXCEPTION);
                 }
                 super.onCancel();
             }
