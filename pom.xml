@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fun.golinks</groupId>
     <artifactId>grpc-pure</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>grpc-pure</name>
     <description>
         Grpc作为一个优秀的开源RPC框架，广泛受到互联网大厂的青睐。然而，对小型企业而言，其扩展性和复杂度可能成为障碍。有幸参与过一家互联网公司大规模Grpc服务的落地实践，因此将这些实战经验沉淀后，推出了**Grpc-Pure**，希望能为需要简化Grpc接入的小型团队提供帮助。
@@ -245,35 +245,28 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <artifactSet>
-                                <includes>
-                                    <include>io.grpc:grpc-netty-shaded</include>
-                                    <include>io.grpc:grpc-protobuf</include>
-                                    <include>io.grpc:grpc-stub</include>
-                                    <include>io.grpc:grpc-services</include>
-                                </includes>
-                            </artifactSet>
-                            <relocations>
-                                <relocation>
-                                    <pattern>io.grpc</pattern>
-                                    <shadedPattern>shaded.io.grpc</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--需要独立的grpc的shade包，才能使用这种方式-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-shade-plugin</artifactId>-->
+<!--                <version>3.6.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>shade</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <relocations>-->
+<!--                                <relocation>-->
+<!--                                    <pattern>io.grpc</pattern>-->
+<!--                                    <shadedPattern>shaded.io.grpc</shadedPattern>-->
+<!--                                </relocation>-->
+<!--                            </relocations>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
     <profiles>
