@@ -111,7 +111,7 @@ public class GrpcChannelsTest {
                 /**
                  * 设置TraceId
                  */
-                GrpcMDC.setTraceId(String.valueOf(i));
+                GrpcContext.setTraceId(String.valueOf(i));
                 /**
                  * 请求体
                  */
@@ -152,8 +152,8 @@ public class GrpcChannelsTest {
          */
         @Override
         public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-            GrpcBiConsumer<HelloRequest, HelloReply> grpcBiConsumer = GrpcBiConsumer.wrap(sayHelloFunction);
-            grpcBiConsumer.accept(req, responseObserver);
+            GrpcConsumer<HelloRequest, HelloReply> grpcConsumer = GrpcConsumer.wrap(sayHelloFunction);
+            grpcConsumer.accept(req, responseObserver);
         }
     }
 

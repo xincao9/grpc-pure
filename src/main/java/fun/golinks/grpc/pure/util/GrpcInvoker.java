@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 public class GrpcInvoker<Req, Resp> {
 
-    private Function<Req, Resp> function;
+    private final Function<Req, Resp> function;
 
     private GrpcInvoker(Function<Req, Resp> function) {
         this.function = function;

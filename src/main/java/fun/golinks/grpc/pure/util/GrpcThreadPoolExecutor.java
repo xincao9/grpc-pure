@@ -91,7 +91,7 @@ public class GrpcThreadPoolExecutor extends ThreadPoolExecutor {
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         if (t != null) {
-            log.error("tyc thread pool", t);
+            log.error("thread pool", t);
         }
     }
 }

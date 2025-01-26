@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class GrpcMDC {
+public class GrpcContext {
 
     public static String getTraceId() {
         String traceId = MDC.get(SystemConsts.TRACE_ID);
@@ -29,5 +29,12 @@ public class GrpcMDC {
         }
         context.put(SystemConsts.TRACE_ID, traceId);
         MDC.setContextMap(context);
+    }
+
+    public static void removeTraceId(String traceId) {
+        Map<String, String> context = MDC.getCopyOfContextMap();
+        if (context != null) {
+            context.remove(SystemConsts.TRACE_ID);
+        }
     }
 }

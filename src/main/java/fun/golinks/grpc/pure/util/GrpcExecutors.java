@@ -21,7 +21,7 @@ public class GrpcExecutors {
 
                     @Override
                     public Thread newThread(Runnable runnable) {
-                        return new Thread(runnable, String.format("thread-%s-%d", name, counter.getAndIncrement()));
+                        return new Thread(runnable, String.format("%s-%d-executor", name, counter.getAndIncrement()));
                     }
                 }, rejectedExecutionHandler);
     }

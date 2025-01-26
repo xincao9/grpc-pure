@@ -1,7 +1,7 @@
 package fun.golinks.grpc.pure.interceptor;
 
 import fun.golinks.grpc.pure.constant.SystemConsts;
-import fun.golinks.grpc.pure.util.GrpcMDC;
+import fun.golinks.grpc.pure.util.GrpcContext;
 import fun.golinks.grpc.pure.util.GrpcUtils;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ public class InternalServerInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
             ServerCallHandler<ReqT, RespT> next) {
         String traceId = headers.get(SystemConsts.TRACE_ID_KEY);
-        GrpcMDC.setTraceId(traceId);
+        GrpcContext.setTraceId(traceId);
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
         String methodName = call.getMethodDescriptor().getFullMethodName();
