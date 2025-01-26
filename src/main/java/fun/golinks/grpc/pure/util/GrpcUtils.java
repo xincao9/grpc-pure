@@ -30,7 +30,7 @@ public class GrpcUtils {
 
     public static Throwable parseCause(Throwable throwable) {
         if (throwable instanceof StatusRuntimeException) {
-            StatusRuntimeException statusRuntimeException = (StatusRuntimeException)throwable;
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException) throwable;
             Throwable cause = parseCause(statusRuntimeException.getStatus(), statusRuntimeException.getTrailers());
             if (cause != null) {
                 return cause;

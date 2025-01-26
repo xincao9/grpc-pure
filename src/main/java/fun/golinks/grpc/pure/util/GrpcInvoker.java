@@ -2,7 +2,7 @@ package fun.golinks.grpc.pure.util;
 
 import com.google.common.base.Function;
 
-public class GrpcInvoker <Req, Resp> {
+public class GrpcInvoker<Req, Resp> {
 
     private Function<Req, Resp> function;
 
