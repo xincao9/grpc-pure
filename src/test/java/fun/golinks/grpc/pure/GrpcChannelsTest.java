@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 @Slf4j
 public class GrpcChannelsTest {
@@ -117,7 +116,7 @@ public class GrpcChannelsTest {
                 /**
                  * 执行包裹类
                  */
-                HelloReply helloReply = grpcInvoker.exec(helloRequest);
+                HelloReply helloReply = grpcInvoker.apply(helloRequest);
                 log.info("helloReply: {}", helloReply.getMessage());
             } catch (GreeterException e) {
                 log.error("测试Case异常 grpc", e);
@@ -133,7 +132,7 @@ public class GrpcChannelsTest {
         /**
          * 方法处理类；单例
          */
-        private static final Function<HelloRequest, HelloReply> sayHelloFunction = helloRequest -> {
+        private static final GrpcFunction<HelloRequest, HelloReply> sayHelloFunction = helloRequest -> {
             HelloReply reply = HelloReply.newBuilder()
                     .setMessage(String.format("Server:Hello %s", helloRequest.getName())).build();
             if (RandomUtils.nextInt(0, 100) == 0) {
@@ -155,7 +154,7 @@ public class GrpcChannelsTest {
         }
     }
 
-    public static class GreeterException extends RuntimeException {
+    public static class GreeterException extends Exception {
 
         public GreeterException() {
             super();

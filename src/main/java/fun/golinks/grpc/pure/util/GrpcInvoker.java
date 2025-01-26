@@ -1,20 +1,19 @@
 package fun.golinks.grpc.pure.util;
 
-import java.util.function.Function;
+public class GrpcInvoker<Req, Resp> implements GrpcFunction<Req, Resp> {
 
-public class GrpcInvoker<Req, Resp> {
+    private final GrpcFunction<Req, Resp> function;
 
-    private final Function<Req, Resp> function;
-
-    private GrpcInvoker(Function<Req, Resp> function) {
+    private GrpcInvoker(GrpcFunction<Req, Resp> function) {
         this.function = function;
     }
 
-    public static <Req, Resp> GrpcInvoker<Req, Resp> wrap(Function<Req, Resp> function) {
+    public static <Req, Resp> GrpcInvoker<Req, Resp> wrap(GrpcFunction<Req, Resp> function) {
         return new GrpcInvoker<>(function);
     }
 
-    public Resp exec(Req req) throws Throwable {
+    @Override
+    public Resp apply(Req req) throws Throwable {
         try {
             return function.apply(req);
         } catch (Throwable e) {

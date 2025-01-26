@@ -3,17 +3,16 @@ package fun.golinks.grpc.pure.util;
 import io.grpc.stub.StreamObserver;
 
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class GrpcConsumer<Req, Resp> implements BiConsumer<Req, StreamObserver<Resp>> {
 
-    private final Function<Req, Resp> function;
+    private final GrpcFunction<Req, Resp> function;
 
-    private GrpcConsumer(Function<Req, Resp> function) {
+    private GrpcConsumer(GrpcFunction<Req, Resp> function) {
         this.function = function;
     }
 
-    public static <Req, Resp> GrpcConsumer<Req, Resp> wrap(Function<Req, Resp> function) {
+    public static <Req, Resp> GrpcConsumer<Req, Resp> wrap(GrpcFunction<Req, Resp> function) {
         return new GrpcConsumer<>(function);
     }
 
