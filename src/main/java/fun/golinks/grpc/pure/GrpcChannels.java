@@ -1,6 +1,7 @@
 package fun.golinks.grpc.pure;
 
 import com.alibaba.nacos.common.utils.CollectionUtils;
+import fun.golinks.grpc.pure.balancer.WeightRandomLoadBalancerProvider;
 import fun.golinks.grpc.pure.core.PingRunner;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 客户端
@@ -20,16 +20,13 @@ public class GrpcChannels {
 
     private final Map<String, ManagedChannel> managedChannelMap;
     private final NameResolverProvider nameResolverProvider;
-    private final LoadBalancerProvider loadBalancerProvider;
     private final Set<ClientInterceptor> clientInterceptors;
     private final Executor executor;
     private final String defaultLoadBalancingPolicy;
 
-    private GrpcChannels(NameResolverProvider nameResolverProvider, LoadBalancerProvider loadBalancerProvider,
-            Boolean enablePing, Set<ClientInterceptor> clientInterceptors, Executor executor,
-            String defaultLoadBalancingPolicy) {
+    private GrpcChannels(NameResolverProvider nameResolverProvider, Boolean enablePing,
+            Set<ClientInterceptor> clientInterceptors, Executor executor, String defaultLoadBalancingPolicy) {
         this.nameResolverProvider = nameResolverProvider;
-        this.loadBalancerProvider = loadBalancerProvider;
         this.managedChannelMap = new ConcurrentHashMap<>();
         if (enablePing) {
             PingRunner pingRunner = new PingRunner(this.managedChannelMap);
@@ -61,9 +58,7 @@ public class GrpcChannels {
         if (nameResolverProvider != null) {
             NameResolverRegistry.getDefaultRegistry().register(nameResolverProvider);
         }
-        if (loadBalancerProvider != null) {
-            LoadBalancerRegistry.getDefaultRegistry().register(loadBalancerProvider);
-        }
+        LoadBalancerRegistry.getDefaultRegistry().register(new WeightRandomLoadBalancerProvider());
         ManagedChannelBuilder<?> managedChannelBuilder = ManagedChannelBuilder.forTarget(target).usePlaintext();
         if (StringUtils.isNotBlank(defaultLoadBalancingPolicy)) {
             managedChannelBuilder.defaultLoadBalancingPolicy(defaultLoadBalancingPolicy);
@@ -80,10 +75,9 @@ public class GrpcChannels {
     public static class Builder {
         private Boolean enablePing = true;
         private NameResolverProvider nameResolverProvider;
-        private LoadBalancerProvider loadBalancerProvider;
         private Set<ClientInterceptor> clientInterceptors;
         private Executor executor;
-        private String defaultLoadBalancingPolicy;
+        private String defaultLoadBalancingPolicy = "weight_random";
 
         public Builder enablePing(Boolean enablePing) {
             this.enablePing = enablePing;
@@ -92,11 +86,6 @@ public class GrpcChannels {
 
         public Builder setNameResolverProvider(NameResolverProvider nameResolverProvider) {
             this.nameResolverProvider = nameResolverProvider;
-            return this;
-        }
-
-        public Builder setLoadBalancerProvider(LoadBalancerProvider loadBalancerProvider) {
-            this.loadBalancerProvider = loadBalancerProvider;
             return this;
         }
 
@@ -116,8 +105,8 @@ public class GrpcChannels {
         }
 
         public GrpcChannels build() throws Throwable {
-            return new GrpcChannels(nameResolverProvider, loadBalancerProvider, enablePing, clientInterceptors,
-                    executor, defaultLoadBalancingPolicy);
+            return new GrpcChannels(nameResolverProvider, enablePing, clientInterceptors, executor,
+                    defaultLoadBalancingPolicy);
         }
     }
 }
