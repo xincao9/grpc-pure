@@ -1,7 +1,6 @@
 package fun.golinks.grpc.pure;
 
 import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
-import fun.golinks.grpc.pure.config.LogbackConfig;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
 import fun.golinks.grpc.pure.interceptor.InternalClientInterceptor;
@@ -38,7 +37,6 @@ public class GrpcChannelsTest {
 
     @BeforeClass
     public static void setUp() throws Throwable {
-        LogbackConfig.init();
         /**
          * 启动多个服务端节点
          */
