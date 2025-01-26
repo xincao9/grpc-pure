@@ -4,7 +4,7 @@ import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
 import fun.golinks.grpc.pure.config.LogbackConfig;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
-import fun.golinks.grpc.pure.interceptor.LoggerClientInterceptor;
+import fun.golinks.grpc.pure.interceptor.InternalClientInterceptor;
 import fun.golinks.grpc.pure.util.GrpcExecutors;
 import fun.golinks.grpc.pure.util.GrpcThreadPoolExecutor;
 import io.grpc.ManagedChannel;
@@ -69,7 +69,7 @@ public class GrpcChannelsTest {
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
                 .setExecutor(grpcThreadPoolExecutor)
-                .setClientInterceptors(Collections.singleton(new LoggerClientInterceptor()))
+                .setClientInterceptors(Collections.singleton(new InternalClientInterceptor()))
                 .build();
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
@@ -84,10 +84,16 @@ public class GrpcChannelsTest {
 
         @Override
         public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-            HelloReply reply = HelloReply.newBuilder()
-                    .setMessage(String.format("Server:Hello %s", req.getName())).build();
-            responseObserver.onNext(reply);
-            responseObserver.onCompleted();
+            try {
+                HelloReply reply = HelloReply.newBuilder()
+                        .setMessage(String.format("Server:Hello %s", req.getName())).build();
+                responseObserver.onNext(reply);
+            } catch (Throwable e) {
+                responseObserver.onError(e);
+            } finally {
+                responseObserver.onCompleted();
+            }
+
         }
     }
 

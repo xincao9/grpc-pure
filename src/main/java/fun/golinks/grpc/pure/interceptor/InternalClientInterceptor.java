@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class LoggerClientInterceptor implements ClientInterceptor {
+public class InternalClientInterceptor implements ClientInterceptor {
 
     private static final String LOGGER_MESSAGE_FORMAT = "[{}]:[{}] - invocation performance cost: {} milliseconds";
 

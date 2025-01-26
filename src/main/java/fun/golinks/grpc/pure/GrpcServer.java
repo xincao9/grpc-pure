@@ -1,7 +1,7 @@
 package fun.golinks.grpc.pure;
 
 import fun.golinks.grpc.pure.discovery.ServerRegister;
-import fun.golinks.grpc.pure.interceptor.LoggerServerInterceptor;
+import fun.golinks.grpc.pure.interceptor.InternalServerInterceptor;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
@@ -90,7 +90,7 @@ public class GrpcServer {
                     responseObserver.onCompleted();
                 }
             });
-            serverBuilder.intercept(new LoggerServerInterceptor());
+            serverBuilder.intercept(new InternalServerInterceptor());
             Server server = serverBuilder.build().start();
             if (serverRegister != null) {
                 serverRegister.start();
