@@ -5,8 +5,7 @@ import fun.golinks.grpc.pure.config.LogbackConfig;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
 import fun.golinks.grpc.pure.interceptor.InternalClientInterceptor;
-import fun.golinks.grpc.pure.util.GrpcExecutors;
-import fun.golinks.grpc.pure.util.GrpcThreadPoolExecutor;
+import fun.golinks.grpc.pure.util.*;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @Slf4j
 public class GrpcChannelsTest {
@@ -75,29 +75,33 @@ public class GrpcChannelsTest {
         ManagedChannel managedChannel = grpcChannels.create("nacos://" + APP_NAME);
         GreeterBlockingStub greeterBlockingStub = GreeterGrpc.newBlockingStub(managedChannel);
         for (int i = 0; i < 10; i++) {
-                HelloReply helloReply = greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
-                        .sayHello(HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build());
+            try {
+                GrpcInvoker<HelloRequest, HelloReply> grpcInvoker = GrpcInvoker.wrap(helloRequest -> greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
+                        .sayHello(helloRequest));
+                HelloRequest helloRequest = HelloRequest.newBuilder().setName(RandomStringUtils.randomAlphabetic(32)).build();
+                HelloReply helloReply = grpcInvoker.exec(helloRequest);
                 log.info("helloReply: {}", helloReply);
+            } catch (Throwable e) {
+                log.error("grpc", e);
+            }
         }
     }
 
     public static class GreeterImpl extends GreeterGrpc.GreeterImplBase {
 
+        private static final Function<HelloRequest, HelloReply> sayHelloFunction = helloRequest -> {
+            HelloReply reply = HelloReply.newBuilder()
+                    .setMessage(String.format("Server:Hello %s", helloRequest.getName())).build();
+            if (RandomUtils.nextBoolean()) {
+                throw new IllegalArgumentException("随机错误");
+            }
+            return reply;
+        };
+
         @Override
         public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-            try {
-                HelloReply reply = HelloReply.newBuilder()
-                        .setMessage(String.format("Server:Hello %s", req.getName())).build();
-//                if (RandomUtils.nextBoolean()) {
-//                    throw new IllegalArgumentException("随机错误");
-//                }
-                responseObserver.onNext(reply);
-            } catch (Throwable e) {
-                responseObserver.onError(e);
-            } finally {
-                responseObserver.onCompleted();
-            }
-
+            GrpcBiConsumer<HelloRequest, HelloReply> grpcBiConsumer = GrpcBiConsumer.wrap(sayHelloFunction);
+            grpcBiConsumer.accept(req, responseObserver);
         }
     }
 

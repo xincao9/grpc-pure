@@ -3,6 +3,7 @@ package fun.golinks.grpc.pure.util;
 import fun.golinks.grpc.pure.constant.SystemConsts;
 import io.grpc.Metadata;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,17 @@ public class GrpcUtils {
             return throwable;
         }
         return null;
+    }
+
+    public static Throwable parseCause(Throwable throwable) {
+        if (throwable instanceof StatusRuntimeException) {
+            StatusRuntimeException statusRuntimeException = (StatusRuntimeException)throwable;
+            Throwable cause = parseCause(statusRuntimeException.getStatus(), statusRuntimeException.getTrailers());
+            if (cause != null) {
+                return cause;
+            }
+        }
+        return throwable;
     }
 
     public static Throwable parseCause(Status status, Metadata trailers) {

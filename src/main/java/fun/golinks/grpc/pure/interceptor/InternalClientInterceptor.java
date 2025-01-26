@@ -39,7 +39,7 @@ public class InternalClientInterceptor implements ClientInterceptor {
                                 long costTime = System.currentTimeMillis() - startTime;
                                 if (run.compareAndSet(false, true)) {
                                     if (status.isOk()) {
-                                        log.info(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime);
+                                        log.debug(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime);
                                     } else {
                                         Throwable throwable = GrpcUtils.parseCause(status, trailers);
                                         if (throwable == null) {

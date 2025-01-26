@@ -26,7 +26,7 @@ public class InternalServerInterceptor implements ServerInterceptor {
                         if (run.compareAndSet(false, true)) {
                             long costTime = System.currentTimeMillis() - startTime;
                             if (status.isOk()) {
-                                log.info(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime);
+                                log.debug(LOGGER_MESSAGE_FORMAT, traceId, methodName, costTime);
                             } else {
                                 Throwable throwable = GrpcUtils.setCause(trailers, status);
                                 if (throwable == null) {
