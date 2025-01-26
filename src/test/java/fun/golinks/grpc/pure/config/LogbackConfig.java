@@ -17,7 +17,7 @@ public class LogbackConfig {
         consoleAppender.setContext(context);
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(context);
-        encoder.setPattern("%d{yyyy-MM-dd HH:mm:ss} [%thread] %X{trace-id} %-5level %logger{36} - %msg%n");
+        encoder.setPattern("[%d{yyyy-MM-dd HH:mm:ss}] [%thread] [%X{trace-id}] [%-5level] [%logger{36}] - %msg%n");
         encoder.start();
         consoleAppender.setEncoder(encoder);
         consoleAppender.start();
