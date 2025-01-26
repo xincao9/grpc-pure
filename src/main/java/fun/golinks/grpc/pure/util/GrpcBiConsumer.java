@@ -9,7 +9,7 @@ public class GrpcBiConsumer<Req, Resp> implements BiConsumer<Req, StreamObserver
 
     private final Function<Req, Resp> function;
 
-    public GrpcBiConsumer(Function<Req, Resp> function) {
+    private GrpcBiConsumer(Function<Req, Resp> function) {
         this.function = function;
     }
 
