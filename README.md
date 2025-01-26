@@ -36,7 +36,7 @@ Grpc作为一个优秀的开源RPC框架，广泛受到互联网大厂的青睐�
 <dependency>
     <groupId>fun.golinks</groupId>
     <artifactId>grpc-pure</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
