@@ -118,7 +118,7 @@ public class GrpcChannelsTest {
                  * 执行包裹类
                  */
                 HelloReply helloReply = grpcInvoker.exec(helloRequest);
-                log.info("helloReply: {}", helloReply);
+                log.info("helloReply: {}", helloReply.getMessage());
             } catch (Throwable e) {
                 log.error("grpc", e);
             }

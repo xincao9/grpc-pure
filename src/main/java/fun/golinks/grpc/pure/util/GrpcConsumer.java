@@ -22,10 +22,9 @@ public class GrpcConsumer<Req, Resp> implements BiConsumer<Req, StreamObserver<R
         try {
             Resp resp = function.apply(req);
             responseObserver.onNext(resp);
-        } catch (Throwable e) {
-            responseObserver.onError(e);
-        } finally {
             responseObserver.onCompleted();
+        } catch (Throwable e) {
+            responseObserver.onError(e); // onError后不应该再调用onCompleted，否则会出现各种异常
         }
     }
 }
