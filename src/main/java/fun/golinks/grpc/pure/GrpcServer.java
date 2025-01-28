@@ -11,9 +11,7 @@ import io.grpc.netty.shaded.io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -49,7 +47,7 @@ public class GrpcServer {
         private Integer bossNThreads = BOSS_N_THREADS;
         private Integer workerNThreads = WORKER_N_THREADS;
         private ServerRegister serverRegister = null;
-        private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
+        private final Set<ServerInterceptor> serverInterceptors = new HashSet<>();
 
         public Builder addService(BindableService... service) {
             services.addAll(Arrays.asList(service));
@@ -98,9 +96,7 @@ public class GrpcServer {
                 }
             });
             serverBuilder.intercept(new InternalServerInterceptor());
-            for (ServerInterceptor serverInterceptor : serverInterceptors) {
-                serverBuilder.intercept(serverInterceptor);
-            }
+            serverInterceptors.forEach(serverBuilder::intercept);
             Server server = serverBuilder.build().start();
             if (serverRegister != null) {
                 serverRegister.start();

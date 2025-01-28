@@ -1,6 +1,5 @@
 package fun.golinks.grpc.pure;
 
-import com.alibaba.nacos.common.utils.CollectionUtils;
 import fun.golinks.grpc.pure.balancer.WeightRandomLoadBalancerProvider;
 import fun.golinks.grpc.pure.core.PingRunner;
 import fun.golinks.grpc.pure.interceptor.InternalClientInterceptor;
@@ -67,9 +66,7 @@ public class GrpcChannels {
             managedChannelBuilder.defaultLoadBalancingPolicy(defaultLoadBalancingPolicy);
         }
         managedChannelBuilder.intercept(new InternalClientInterceptor());
-        if (CollectionUtils.isNotEmpty(clientInterceptors)) {
-            clientInterceptors.forEach(managedChannelBuilder::intercept);
-        }
+        clientInterceptors.forEach(managedChannelBuilder::intercept);
         if (executor != null) {
             managedChannelBuilder.executor(executor);
         }
