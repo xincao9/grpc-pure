@@ -4,6 +4,7 @@ import fun.golinks.grpc.pure.discovery.ServerRegister;
 import fun.golinks.grpc.pure.interceptor.InternalServerInterceptor;
 import io.grpc.BindableService;
 import io.grpc.Server;
+import io.grpc.ServerInterceptor;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoopGroup;
 import io.grpc.netty.shaded.io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -48,6 +49,7 @@ public class GrpcServer {
         private Integer bossNThreads = BOSS_N_THREADS;
         private Integer workerNThreads = WORKER_N_THREADS;
         private ServerRegister serverRegister = null;
+        private final List<ServerInterceptor> serverInterceptors = new ArrayList<>();
 
         public Builder addService(BindableService... service) {
             services.addAll(Arrays.asList(service));
@@ -74,6 +76,11 @@ public class GrpcServer {
             return this;
         }
 
+        public Builder addServerInterceptor(ServerInterceptor... serverInterceptor) {
+            this.serverInterceptors.addAll(Arrays.asList(serverInterceptor));
+            return this;
+        }
+
         public GrpcServer build() throws Throwable {
             NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port)
                     .channelType(NioServerSocketChannel.class).bossEventLoopGroup(new NioEventLoopGroup(bossNThreads))
@@ -91,6 +98,9 @@ public class GrpcServer {
                 }
             });
             serverBuilder.intercept(new InternalServerInterceptor());
+            for (ServerInterceptor serverInterceptor : serverInterceptors) {
+                serverBuilder.intercept(serverInterceptor);
+            }
             Server server = serverBuilder.build().start();
             if (serverRegister != null) {
                 serverRegister.start();

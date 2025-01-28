@@ -8,6 +8,8 @@ import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,7 +79,7 @@ public class GrpcChannels {
     public static class Builder {
         private Boolean enablePing = true;
         private NameResolverProvider nameResolverProvider;
-        private Set<ClientInterceptor> clientInterceptors;
+        private final Set<ClientInterceptor> clientInterceptors = new HashSet<>();
         private Executor executor;
         private String defaultLoadBalancingPolicy = "weight_random";
 
@@ -91,8 +93,8 @@ public class GrpcChannels {
             return this;
         }
 
-        public Builder setClientInterceptors(Set<ClientInterceptor> clientInterceptors) {
-            this.clientInterceptors = clientInterceptors;
+        public Builder addClientInterceptor(ClientInterceptor... clientInterceptor) {
+            this.clientInterceptors.addAll(Arrays.asList(clientInterceptor));
             return this;
         }
 
