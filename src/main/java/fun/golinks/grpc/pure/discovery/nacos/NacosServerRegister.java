@@ -25,7 +25,8 @@ public class NacosServerRegister extends ServerRegister {
     private static final String REGISTRATION_TIME_PROPS = "registration-time";
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final NamingService namingService;
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService scheduledExecutorService = Executors
+            .newSingleThreadScheduledExecutor(r -> new Thread(r, "NacosServerRegister"));
 
     private NacosServerRegister(String appName, Integer port, NamingService namingService) {
         super(appName, port);
@@ -38,17 +39,17 @@ public class NacosServerRegister extends ServerRegister {
 
     public void start() {
         if (!running.compareAndSet(false, true)) {
-            log.info("ServerRegister 已经启动了！");
+            log.info("ServerRegister has been started!");
             return;
         }
         if (!register()) {
-            throw new RuntimeException("注册nacos失败");
+            throw new RuntimeException("Failed to register Nacos");
         }
     }
 
     public void stop() {
         if (!running.compareAndSet(true, false)) {
-            log.info("ServerRegister 关闭失败！");
+            log.info("Failed to close ServerRegister!");
         }
     }
 
@@ -70,7 +71,7 @@ public class NacosServerRegister extends ServerRegister {
                 }
                 registerInstance(appName);
             } catch (Throwable e) {
-                log.error("服务注册定时任务", e);
+                log.error("Service registration scheduled task", e);
             }
         }, REGISTER_TIMER_PERIOD_SECOND, REGISTER_TIMER_PERIOD_SECOND, TimeUnit.SECONDS);
         return true;
@@ -83,11 +84,12 @@ public class NacosServerRegister extends ServerRegister {
         while (retry > 0) {
             try {
                 namingService.registerInstance(serverName, instance);
-                log.info("rpc实例注册nacos成功 {} => {}:{}", serverName, instance.getIp(), instance.getPort());
+                log.info("RPC instance successfully registered with Nacos {} => {}:{}", serverName, instance.getIp(),
+                        instance.getPort());
                 return true;
             } catch (Throwable e) {
                 finalException = e;
-                log.warn("rpc实例注册nacos失败", e);
+                log.warn("RPC instance registration failed for Nacos", e);
             }
             retry--;
             try {
@@ -97,7 +99,7 @@ public class NacosServerRegister extends ServerRegister {
                 Thread.currentThread().interrupt();
             }
         }
-        log.error("rpc实例注册nacos失败", finalException);
+        log.error("RPC instance registration failed for Nacos", finalException);
         return false;
     }
 

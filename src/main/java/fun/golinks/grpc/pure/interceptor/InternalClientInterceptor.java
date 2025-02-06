@@ -1,8 +1,8 @@
 package fun.golinks.grpc.pure.interceptor;
 
-import fun.golinks.grpc.pure.constant.SystemConsts;
-import fun.golinks.grpc.pure.util.GrpcContext;
-import fun.golinks.grpc.pure.util.GrpcUtils;
+import fun.golinks.grpc.pure.consts.SystemConsts;
+import fun.golinks.grpc.pure.util.TraceUtils;
+import fun.golinks.grpc.pure.util.ThrowableUtils;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,7 @@ public class InternalClientInterceptor implements ClientInterceptor {
             CallOptions callOptions, Channel next) {
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
-        String traceId = GrpcContext.getTraceId();
+        String traceId = TraceUtils.getTraceId();
         String methodName = method.getFullMethodName();
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
             @Override
@@ -39,7 +39,7 @@ public class InternalClientInterceptor implements ClientInterceptor {
                                     if (status.isOk()) {
                                         log.debug(LOGGER_MESSAGE_FORMAT, methodName, costTime);
                                     } else {
-                                        Throwable throwable = GrpcUtils.parseCause(status, trailers);
+                                        Throwable throwable = ThrowableUtils.parseCause(status, trailers);
                                         if (throwable == null) {
                                             throwable = status.asException(trailers);
                                         }

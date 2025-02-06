@@ -1,6 +1,6 @@
 package fun.golinks.grpc.pure.balancer;
 
-import fun.golinks.grpc.pure.constant.SystemConsts;
+import fun.golinks.grpc.pure.consts.SystemConsts;
 import io.grpc.Attributes;
 import io.grpc.LoadBalancer;
 

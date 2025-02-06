@@ -1,6 +1,6 @@
 package fun.golinks.grpc.pure.util;
 
-import fun.golinks.grpc.pure.constant.SystemConsts;
+import fun.golinks.grpc.pure.consts.SystemConsts;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -13,7 +13,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 
-public class GrpcUtils {
+public class ThrowableUtils {
 
     public static Throwable setCause(Metadata trailers, Status status) {
         if (status.getCode() == Status.Code.UNKNOWN) {
@@ -22,7 +22,7 @@ public class GrpcUtils {
                 return null;
             }
             trailers.put(SystemConsts.EXCEPTION_STACK_TRACE_KEY,
-                    GrpcUtils.getStackTraceAsString(throwable).getBytes(StandardCharsets.UTF_8));
+                    ThrowableUtils.getStackTraceAsString(throwable).getBytes(StandardCharsets.UTF_8));
             return throwable;
         }
         return null;

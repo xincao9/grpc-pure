@@ -24,7 +24,7 @@ public class GrpcChannelsTest {
     /**
      * grpc线程池
      */
-    private final GrpcThreadPoolExecutor grpcThreadPoolExecutor = GrpcExecutors.newGrpcThreadPoolExecutor("grpc-invoke",
+    private final EnhanceThreadPoolExecutor enhanceThreadPoolExecutor = Executors.newGrpcThreadPoolExecutor("grpc-invoke",
             1,
             2,
             1L,
@@ -88,7 +88,7 @@ public class GrpcChannelsTest {
          */
         GrpcChannels grpcChannels = GrpcChannels.newBuilder()
                 .setNameResolverProvider(nacosNameResolverProvider)
-                .setExecutor(grpcThreadPoolExecutor)
+                .setExecutor(enhanceThreadPoolExecutor)
                 .build();
         /**
          * 创建ManagedChannel；一个应用名对应一个实例
@@ -105,7 +105,7 @@ public class GrpcChannelsTest {
                 /**
                  * 设置TraceId
                  */
-                GrpcContext.setTraceId(String.valueOf(i));
+                TraceUtils.setTraceId(String.valueOf(i));
                 /**
                  * 请求体
                  */

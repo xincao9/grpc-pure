@@ -1,8 +1,8 @@
 package fun.golinks.grpc.pure.interceptor;
 
-import fun.golinks.grpc.pure.constant.SystemConsts;
-import fun.golinks.grpc.pure.util.GrpcContext;
-import fun.golinks.grpc.pure.util.GrpcUtils;
+import fun.golinks.grpc.pure.consts.SystemConsts;
+import fun.golinks.grpc.pure.util.TraceUtils;
+import fun.golinks.grpc.pure.util.ThrowableUtils;
 import io.grpc.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +17,7 @@ public class InternalServerInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
             ServerCallHandler<ReqT, RespT> next) {
         String traceId = headers.get(SystemConsts.TRACE_ID_KEY);
-        GrpcContext.setTraceId(traceId);
+        TraceUtils.setTraceId(traceId);
         AtomicBoolean run = new AtomicBoolean(false);
         long startTime = System.currentTimeMillis();
         String methodName = call.getMethodDescriptor().getFullMethodName();
@@ -30,7 +30,7 @@ public class InternalServerInterceptor implements ServerInterceptor {
                             if (status.isOk()) {
                                 log.debug(LOGGER_MESSAGE_FORMAT, methodName, costTime);
                             } else {
-                                Throwable throwable = GrpcUtils.setCause(trailers, status);
+                                Throwable throwable = ThrowableUtils.setCause(trailers, status);
                                 if (throwable == null) {
                                     throwable = status.asException(trailers);
                                 }

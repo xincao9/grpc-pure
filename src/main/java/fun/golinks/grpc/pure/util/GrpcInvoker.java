@@ -17,7 +17,7 @@ public class GrpcInvoker<Req, Resp> implements GrpcFunction<Req, Resp> {
         try {
             return function.apply(req);
         } catch (Throwable e) {
-            throw GrpcUtils.parseCause(e);
+            throw ThrowableUtils.parseCause(e);
         }
     }
 }

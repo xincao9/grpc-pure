@@ -1,4 +1,4 @@
-package fun.golinks.grpc.pure.constant;
+package fun.golinks.grpc.pure.consts;
 
 import io.grpc.Attributes;
 import io.grpc.Metadata;

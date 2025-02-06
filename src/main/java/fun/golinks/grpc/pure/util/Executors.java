@@ -7,15 +7,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("all")
-public class GrpcExecutors {
+public class Executors {
 
     /**
      * 创建线程池
      */
-    public static GrpcThreadPoolExecutor newGrpcThreadPoolExecutor(String name, Integer corePoolSize,
+    public static EnhanceThreadPoolExecutor newGrpcThreadPoolExecutor(String name, Integer corePoolSize,
             Integer maximumPoolSize, Long keepAliveTime, TimeUnit timeUnit, BlockingQueue<Runnable> blockingQueue,
             RejectedExecutionHandler rejectedExecutionHandler) {
-        return new GrpcThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, timeUnit, blockingQueue,
+        return new EnhanceThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, timeUnit, blockingQueue,
                 new ThreadFactory() {
                     private final AtomicInteger counter = new AtomicInteger(0);
 

@@ -3,7 +3,7 @@ package fun.golinks.grpc.pure.discovery.nacos;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import fun.golinks.grpc.pure.constant.SystemConsts;
+import fun.golinks.grpc.pure.consts.SystemConsts;
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
