@@ -61,7 +61,7 @@ public class PingRunner {
                         .withOption(CallOptions.Key.create(INTERNAL_STUB_TYPE), InternalClientCalls.StubType.BLOCKING));
         try {
             ClientCalls.blockingUnaryCall(call, Infra.Empty.newBuilder().build());
-            log.debug("心跳 {} 成功", target);
+            log.debug("heartbeat {} success!", target);
         } catch (Throwable e) {
             log.debug("ping", e);
         }
