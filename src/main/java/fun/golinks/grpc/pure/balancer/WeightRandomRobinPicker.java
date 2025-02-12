@@ -19,21 +19,35 @@ public class WeightRandomRobinPicker extends LoadBalancer.SubchannelPicker {
         this.registrationTimes = new ArrayList<>(subchannels.size());
         for (LoadBalancer.Subchannel subchannel : subchannels) {
             Attributes attributes = subchannel.getAttributes();
+            Double weight = null;
             if (attributes != null) {
-                Double weight = attributes.get(SystemConsts.WEIGHT_ATTRIBUTE);
-                if (weight == null) {
-                    weight = 1000.0;
-                }
-                weights.add(weight);
-                Long registrationTime = attributes.get(SystemConsts.REGISTRATION_TIME_ATTRIBUTE);
-                if (registrationTime == null) {
-                    registrationTime = 0L;
-                }
-                registrationTimes.add(registrationTime);
+                weight = attributes.get(SystemConsts.WEIGHT_ATTRIBUTE);
             }
+            if (weight == null) {
+                weight = 1000.0;
+            }
+            weights.add(weight);
+            Long registrationTime = null;
+            if (attributes != null) {
+                registrationTime = attributes.get(SystemConsts.REGISTRATION_TIME_ATTRIBUTE);
+            }
+            if (registrationTime == null) {
+                registrationTime = 0L;
+            }
+            registrationTimes.add(registrationTime);
         }
     }
 
+    /**
+     * 根据实例的uptime时间，对启动时长较短的实例进行惩罚
+     * 
+     * @param registrationTime
+     *            注册时间
+     * @param weight
+     *            初始权重
+     * 
+     * @return
+     */
     private Double calculate(Long registrationTime, Double weight) {
         long uptime = System.currentTimeMillis() - registrationTime;
         if (uptime > 0 && uptime < SystemConsts.WARMUP_TIME_MS) {
@@ -48,7 +62,7 @@ public class WeightRandomRobinPicker extends LoadBalancer.SubchannelPicker {
             return LoadBalancer.PickResult.withNoResult();
         }
         int size = subchannels.size();
-        List<Double> newWeights = new ArrayList<>(weights.size());
+        List<Double> newWeights = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             long registrationTime = registrationTimes.get(i);
             double weight = weights.get(i);

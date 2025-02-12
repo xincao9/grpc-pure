@@ -5,6 +5,7 @@ import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import fun.golinks.grpc.pure.consts.SystemConsts;
 import fun.golinks.grpc.pure.discovery.ServerRegister;
 import fun.golinks.grpc.pure.util.IpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NacosServerRegister extends ServerRegister {
 
     private static final Integer REGISTER_TIMER_PERIOD_SECOND = 30;
-    private static final String REGISTRATION_TIME_PROPS = "registration-time";
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final NamingService namingService;
     private final ScheduledExecutorService scheduledExecutorService = Executors
@@ -110,7 +110,7 @@ public class NacosServerRegister extends ServerRegister {
         instance.setEphemeral(true);
         instance.setWeight(1000);
         Map<String, String> metadata = new HashMap<>(1);
-        metadata.put(REGISTRATION_TIME_PROPS, String.valueOf(System.currentTimeMillis()));
+        metadata.put(SystemConsts.REGISTRATION_TIME_PROPS, String.valueOf(System.currentTimeMillis()));
         instance.setMetadata(metadata);
         return instance;
     }

@@ -34,12 +34,9 @@ public class WeightRandomLoadBalancer extends LoadBalancer {
         Map<SocketAddress, Attributes> attributesMap = new HashMap<>();
         Set<SocketAddress> newAddresses = newEquivalentAddressGroups.stream().flatMap(
                 (Function<EquivalentAddressGroup, Stream<SocketAddress>>) equivalentAddressGroup -> equivalentAddressGroup
-                        .getAddresses().stream().map(socketAddress -> {
-                            attributesMap.put(socketAddress, equivalentAddressGroup.getAttributes());
-                            return socketAddress;
-                        }))
+                        .getAddresses().stream().peek(socketAddress -> attributesMap.put(socketAddress,
+                                equivalentAddressGroup.getAttributes())))
                 .collect(Collectors.toSet());
-
         Map<SocketAddress, Subchannel> newSubchannelMap = newAddresses.stream()
                 .filter(address -> !subchannelMap.containsKey(address)).map(address -> {
                     Attributes attributes = attributesMap.get(address);
