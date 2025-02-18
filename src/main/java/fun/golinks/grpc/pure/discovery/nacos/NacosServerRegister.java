@@ -1,6 +1,5 @@
 package fun.golinks.grpc.pure.discovery.nacos;
 
-import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import fun.golinks.grpc.pure.consts.SystemConsts;
@@ -148,7 +147,7 @@ public class NacosServerRegister extends ServerRegister {
             return this;
         }
 
-        public NacosServerRegister build() throws NacosException {
+        public NacosServerRegister build() {
             return new NacosServerRegister(appName, port, nacosNamingService.getNamingService());
         }
     }

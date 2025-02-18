@@ -1,6 +1,5 @@
 package fun.golinks.grpc.pure.discovery.nacos;
 
-import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
@@ -54,7 +53,7 @@ public class NacosNameResolverProvider extends NameResolverProvider {
             return this;
         }
 
-        public NacosNameResolverProvider build() throws NacosException {
+        public NacosNameResolverProvider build() {
             return new NacosNameResolverProvider(nacosNamingService.getNamingService());
         }
     }
