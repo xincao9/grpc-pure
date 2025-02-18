@@ -117,30 +117,36 @@ public class NacosServerRegister extends ServerRegister {
 
     public static class Builder {
 
-        private String appName = "Default";
-
-        private Integer port = 9999;
-
-        private String serverAddress = "127.0.0.1";
+        /**
+         * nacos地址
+         */
+        private String serverAddress = "127.0.0.1:8848";
 
         /**
          * 用户名
          */
         private String username = "nacos";
+
         /**
          * 密码
          */
         private String password = "nacos";
 
-        public Builder setAppName(String appName) {
-            this.appName = appName;
-            return this;
-        }
+        /**
+         * 命名空间
+         */
+        private String namespace = "public";
 
-        public Builder setPort(Integer port) {
-            this.port = port;
-            return this;
-        }
+
+        /**
+         * grpc应用名
+         */
+        private String appName = "Default";
+
+        /**
+         * grpc端口
+         */
+        private Integer port = 9999;
 
         public Builder setServerAddress(String serverAddress) {
             this.serverAddress = serverAddress;
@@ -157,11 +163,26 @@ public class NacosServerRegister extends ServerRegister {
             return this;
         }
 
+        public Builder setNamespace(String namespace) {
+            this.namespace = namespace;
+            return this;
+        }
+        public Builder setAppName(String appName) {
+            this.appName = appName;
+            return this;
+        }
+
+        public Builder setPort(Integer port) {
+            this.port = port;
+            return this;
+        }
+
         public NacosServerRegister build() throws NacosException {
             Properties properties = new Properties();
             properties.put(PropertyKeyConst.SERVER_ADDR, serverAddress);
             properties.put(PropertyKeyConst.USERNAME, username);
             properties.put(PropertyKeyConst.PASSWORD, password);
+            properties.put(PropertyKeyConst.NAMESPACE, namespace);
             NamingService namingService = NacosFactory.createNamingService(properties);
             return new NacosServerRegister(appName, port, namingService);
         }
