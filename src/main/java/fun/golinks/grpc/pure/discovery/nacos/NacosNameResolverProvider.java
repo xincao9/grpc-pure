@@ -51,14 +51,21 @@ public class NacosNameResolverProvider extends NameResolverProvider {
          * nacos地址
          */
         private String serverAddress = "localhost:8848";
+
         /**
          * 用户名
          */
         private String username = "nacos";
+
         /**
          * 密码
          */
         private String password = "nacos";
+
+        /**
+         * 命名空间
+         */
+        private String namespace = "public";
 
         public Builder setServerAddress(String serverAddress) {
             this.serverAddress = serverAddress;
@@ -75,11 +82,17 @@ public class NacosNameResolverProvider extends NameResolverProvider {
             return this;
         }
 
+        public Builder setNamespace(String namespace) {
+            this.namespace = namespace;
+            return this;
+        }
+
         public NacosNameResolverProvider build() throws NacosException {
             Properties properties = new Properties();
             properties.put(PropertyKeyConst.SERVER_ADDR, serverAddress);
             properties.put(PropertyKeyConst.USERNAME, username);
             properties.put(PropertyKeyConst.PASSWORD, password);
+            properties.put(PropertyKeyConst.NAMESPACE, namespace);
             NamingService namingService = NacosFactory.createNamingService(properties);
             return new NacosNameResolverProvider(namingService);
         }

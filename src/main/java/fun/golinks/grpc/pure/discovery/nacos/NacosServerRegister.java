@@ -137,7 +137,6 @@ public class NacosServerRegister extends ServerRegister {
          */
         private String namespace = "public";
 
-
         /**
          * grpc应用名
          */
@@ -167,6 +166,7 @@ public class NacosServerRegister extends ServerRegister {
             this.namespace = namespace;
             return this;
         }
+
         public Builder setAppName(String appName) {
             this.appName = appName;
             return this;
