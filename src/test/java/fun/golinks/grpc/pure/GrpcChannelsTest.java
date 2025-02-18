@@ -2,6 +2,7 @@ package fun.golinks.grpc.pure;
 
 import fun.golinks.grpc.pure.GreeterGrpc.GreeterBlockingStub;
 import fun.golinks.grpc.pure.discovery.nacos.NacosNameResolverProvider;
+import fun.golinks.grpc.pure.discovery.nacos.NacosNamingService;
 import fun.golinks.grpc.pure.discovery.nacos.NacosServerRegister;
 import fun.golinks.grpc.pure.util.*;
 import io.grpc.ManagedChannel;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class GrpcChannelsTest {
 
     private static final String APP_NAME = "greeter";
+
     /**
      * grpc线程池
      */
@@ -37,7 +39,7 @@ public class GrpcChannelsTest {
         /**
          * 启动多个服务端节点
          */
-        for (int port = 9999; port < 10000; port++) {
+        for (int port = 9999; port < 10002; port++) {
             setUpServer(port);
         }
     }
@@ -49,14 +51,18 @@ public class GrpcChannelsTest {
      * @throws Throwable 异常
      */
     private static void setUpServer(int port) throws Throwable {
+        NacosNamingService nacosNamingService = NacosNamingService.newBuilder()
+                .setServerAddress("127.0.0.1:8848")
+                .setUsername("nacos")
+                .setPassword("nacos")
+                .setNamespace("grpc")
+                .build();
         /**
          * 服务注册器
          */
         NacosServerRegister nacosServerRegister = NacosServerRegister.newBuilder()
+                .setNacosNamingService(nacosNamingService)
                 .setAppName(APP_NAME)
-                .setServerAddress("127.0.0.1:8848")
-                .setUsername("nacos")
-                .setPassword("nacos")
                 .setPort(port) // 后端服务监听端口
                 .build();
         /**
@@ -75,13 +81,17 @@ public class GrpcChannelsTest {
 
     @Test
     public void testCreate() throws Throwable {
+        NacosNamingService nacosNamingService = NacosNamingService.newBuilder()
+                .setServerAddress("127.0.0.1:8848")
+                .setUsername("nacos")
+                .setPassword("nacos")
+                .setNamespace("grpc")
+                .build();
         /**
          * NameResolver；单例；解析 nacos://{应用名}
          */
         NacosNameResolverProvider nacosNameResolverProvider = NacosNameResolverProvider.newBuilder()
-                .setServerAddress("127.0.0.1:8848")
-                .setUsername("nacos")
-                .setPassword("nacos")
+                .setNacosNamingService(nacosNamingService)
                 .build();
         /**
          * ManagedChannel管理类；单例
@@ -100,7 +110,7 @@ public class GrpcChannelsTest {
          */
         GrpcInvoker<HelloRequest, HelloReply> grpcInvoker = GrpcInvoker.wrap(helloRequest -> greeterBlockingStub.withDeadlineAfter(10000, TimeUnit.MILLISECONDS)
                 .sayHello(helloRequest));
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             try {
                 /**
                  * 设置TraceId
@@ -141,7 +151,7 @@ public class GrpcChannelsTest {
         /**
          * 方法
          *
-         * @param req 请求踢
+         * @param req              请求踢
          * @param responseObserver 响应Observer
          */
         @Override

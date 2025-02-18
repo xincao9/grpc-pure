@@ -1,7 +1,5 @@
 package fun.golinks.grpc.pure.discovery.nacos;
 
-import com.alibaba.nacos.api.NacosFactory;
-import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import io.grpc.NameResolver;
@@ -9,7 +7,6 @@ import io.grpc.NameResolverProvider;
 
 import java.net.URI;
 import java.util.Objects;
-import java.util.Properties;
 
 public class NacosNameResolverProvider extends NameResolverProvider {
 
@@ -47,54 +44,18 @@ public class NacosNameResolverProvider extends NameResolverProvider {
 
     public static class Builder {
 
-        /**
-         * nacos地址
-         */
-        private String serverAddress = "localhost:8848";
-
-        /**
-         * 用户名
-         */
-        private String username = "nacos";
-
-        /**
-         * 密码
-         */
-        private String password = "nacos";
-
-        /**
-         * 命名空间
-         */
-        private String namespace = "public";
-
-        public Builder setServerAddress(String serverAddress) {
-            this.serverAddress = serverAddress;
-            return this;
+        private Builder() {
         }
 
-        public Builder setUsername(String username) {
-            this.username = username;
-            return this;
-        }
+        private NacosNamingService nacosNamingService;
 
-        public Builder setPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder setNamespace(String namespace) {
-            this.namespace = namespace;
+        public Builder setNacosNamingService(NacosNamingService nacosNamingService) {
+            this.nacosNamingService = nacosNamingService;
             return this;
         }
 
         public NacosNameResolverProvider build() throws NacosException {
-            Properties properties = new Properties();
-            properties.put(PropertyKeyConst.SERVER_ADDR, serverAddress);
-            properties.put(PropertyKeyConst.USERNAME, username);
-            properties.put(PropertyKeyConst.PASSWORD, password);
-            properties.put(PropertyKeyConst.NAMESPACE, namespace);
-            NamingService namingService = NacosFactory.createNamingService(properties);
-            return new NacosNameResolverProvider(namingService);
+            return new NacosNameResolverProvider(nacosNamingService.getNamingService());
         }
     }
 }

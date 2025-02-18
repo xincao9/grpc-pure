@@ -1,7 +1,5 @@
 package fun.golinks.grpc.pure.discovery.nacos;
 
-import com.alibaba.nacos.api.NacosFactory;
-import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
@@ -10,7 +8,10 @@ import fun.golinks.grpc.pure.discovery.ServerRegister;
 import fun.golinks.grpc.pure.util.IpUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -117,25 +118,8 @@ public class NacosServerRegister extends ServerRegister {
 
     public static class Builder {
 
-        /**
-         * nacos地址
-         */
-        private String serverAddress = "127.0.0.1:8848";
-
-        /**
-         * 用户名
-         */
-        private String username = "nacos";
-
-        /**
-         * 密码
-         */
-        private String password = "nacos";
-
-        /**
-         * 命名空间
-         */
-        private String namespace = "public";
+        private Builder() {
+        }
 
         /**
          * grpc应用名
@@ -147,23 +131,10 @@ public class NacosServerRegister extends ServerRegister {
          */
         private Integer port = 9999;
 
-        public Builder setServerAddress(String serverAddress) {
-            this.serverAddress = serverAddress;
-            return this;
-        }
+        private NacosNamingService nacosNamingService;
 
-        public Builder setUsername(String username) {
-            this.username = username;
-            return this;
-        }
-
-        public Builder setPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder setNamespace(String namespace) {
-            this.namespace = namespace;
+        public Builder setNacosNamingService(NacosNamingService nacosNamingService) {
+            this.nacosNamingService = nacosNamingService;
             return this;
         }
 
@@ -178,13 +149,7 @@ public class NacosServerRegister extends ServerRegister {
         }
 
         public NacosServerRegister build() throws NacosException {
-            Properties properties = new Properties();
-            properties.put(PropertyKeyConst.SERVER_ADDR, serverAddress);
-            properties.put(PropertyKeyConst.USERNAME, username);
-            properties.put(PropertyKeyConst.PASSWORD, password);
-            properties.put(PropertyKeyConst.NAMESPACE, namespace);
-            NamingService namingService = NacosFactory.createNamingService(properties);
-            return new NacosServerRegister(appName, port, namingService);
+            return new NacosServerRegister(appName, port, nacosNamingService.getNamingService());
         }
     }
 }
